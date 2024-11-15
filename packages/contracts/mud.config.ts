@@ -3,6 +3,8 @@ import { defineWorld } from "@latticexyz/world";
 export default defineWorld({
   namespace: "app",
   tables: {
+    CapturableAbility: "string",
+    DrunkenModifier: "uint256",
     Piece: {
       schema: {
         id: "bytes32",
