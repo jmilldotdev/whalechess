@@ -27,6 +27,7 @@ struct LobbyData {
   uint256 createdAt;
   bool active;
   GameResult result;
+  address activePlayerAddress;
 }
 
 library Lobby {
@@ -34,12 +35,12 @@ library Lobby {
   ResourceId constant _tableId = ResourceId.wrap(0x746261707000000000000000000000004c6f6262790000000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x008a070014201420200101000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x009e080014201420200101140000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (address, bytes32, address, bytes32, uint256, bool, uint8)
-  Schema constant _valueSchema = Schema.wrap(0x008a0700615f615f1f6000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (address, bytes32, address, bytes32, uint256, bool, uint8, address)
+  Schema constant _valueSchema = Schema.wrap(0x009e0800615f615f1f6000610000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -55,7 +56,7 @@ library Lobby {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](7);
+    fieldNames = new string[](8);
     fieldNames[0] = "ownerAddress";
     fieldNames[1] = "ownerSquadId";
     fieldNames[2] = "opponentAddress";
@@ -63,6 +64,7 @@ library Lobby {
     fieldNames[4] = "createdAt";
     fieldNames[5] = "active";
     fieldNames[6] = "result";
+    fieldNames[7] = "activePlayerAddress";
   }
 
   /**
@@ -374,6 +376,48 @@ library Lobby {
   }
 
   /**
+   * @notice Get activePlayerAddress.
+   */
+  function getActivePlayerAddress(bytes32 id) internal view returns (address activePlayerAddress) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 7, _fieldLayout);
+    return (address(bytes20(_blob)));
+  }
+
+  /**
+   * @notice Get activePlayerAddress.
+   */
+  function _getActivePlayerAddress(bytes32 id) internal view returns (address activePlayerAddress) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 7, _fieldLayout);
+    return (address(bytes20(_blob)));
+  }
+
+  /**
+   * @notice Set activePlayerAddress.
+   */
+  function setActivePlayerAddress(bytes32 id, address activePlayerAddress) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((activePlayerAddress)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set activePlayerAddress.
+   */
+  function _setActivePlayerAddress(bytes32 id, address activePlayerAddress) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((activePlayerAddress)), _fieldLayout);
+  }
+
+  /**
    * @notice Get the full data.
    */
   function get(bytes32 id) internal view returns (LobbyData memory _table) {
@@ -414,7 +458,8 @@ library Lobby {
     bytes32 opponentSquadId,
     uint256 createdAt,
     bool active,
-    GameResult result
+    GameResult result,
+    address activePlayerAddress
   ) internal {
     bytes memory _staticData = encodeStatic(
       ownerAddress,
@@ -423,7 +468,8 @@ library Lobby {
       opponentSquadId,
       createdAt,
       active,
-      result
+      result,
+      activePlayerAddress
     );
 
     EncodedLengths _encodedLengths;
@@ -446,7 +492,8 @@ library Lobby {
     bytes32 opponentSquadId,
     uint256 createdAt,
     bool active,
-    GameResult result
+    GameResult result,
+    address activePlayerAddress
   ) internal {
     bytes memory _staticData = encodeStatic(
       ownerAddress,
@@ -455,7 +502,8 @@ library Lobby {
       opponentSquadId,
       createdAt,
       active,
-      result
+      result,
+      activePlayerAddress
     );
 
     EncodedLengths _encodedLengths;
@@ -478,7 +526,8 @@ library Lobby {
       _table.opponentSquadId,
       _table.createdAt,
       _table.active,
-      _table.result
+      _table.result,
+      _table.activePlayerAddress
     );
 
     EncodedLengths _encodedLengths;
@@ -501,7 +550,8 @@ library Lobby {
       _table.opponentSquadId,
       _table.createdAt,
       _table.active,
-      _table.result
+      _table.result,
+      _table.activePlayerAddress
     );
 
     EncodedLengths _encodedLengths;
@@ -528,7 +578,8 @@ library Lobby {
       bytes32 opponentSquadId,
       uint256 createdAt,
       bool active,
-      GameResult result
+      GameResult result,
+      address activePlayerAddress
     )
   {
     ownerAddress = (address(Bytes.getBytes20(_blob, 0)));
@@ -544,6 +595,8 @@ library Lobby {
     active = (_toBool(uint8(Bytes.getBytes1(_blob, 136))));
 
     result = GameResult(uint8(Bytes.getBytes1(_blob, 137)));
+
+    activePlayerAddress = (address(Bytes.getBytes20(_blob, 138)));
   }
 
   /**
@@ -564,7 +617,8 @@ library Lobby {
       _table.opponentSquadId,
       _table.createdAt,
       _table.active,
-      _table.result
+      _table.result,
+      _table.activePlayerAddress
     ) = decodeStatic(_staticData);
   }
 
@@ -599,9 +653,20 @@ library Lobby {
     bytes32 opponentSquadId,
     uint256 createdAt,
     bool active,
-    GameResult result
+    GameResult result,
+    address activePlayerAddress
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(ownerAddress, ownerSquadId, opponentAddress, opponentSquadId, createdAt, active, result);
+    return
+      abi.encodePacked(
+        ownerAddress,
+        ownerSquadId,
+        opponentAddress,
+        opponentSquadId,
+        createdAt,
+        active,
+        result,
+        activePlayerAddress
+      );
   }
 
   /**
@@ -617,7 +682,8 @@ library Lobby {
     bytes32 opponentSquadId,
     uint256 createdAt,
     bool active,
-    GameResult result
+    GameResult result,
+    address activePlayerAddress
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(
       ownerAddress,
@@ -626,7 +692,8 @@ library Lobby {
       opponentSquadId,
       createdAt,
       active,
-      result
+      result,
+      activePlayerAddress
     );
 
     EncodedLengths _encodedLengths;

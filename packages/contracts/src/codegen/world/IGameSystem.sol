@@ -8,4 +8,18 @@ pragma solidity >=0.8.24;
  * @author MUD (https://mud.dev) by Lattice (https://lattice.xyz)
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
-interface IGameSystem {}
+interface IGameSystem {
+  error GameLobbyNotFound();
+  error NotActivePlayer();
+  error GameNotLobbyOwner();
+  error InvalidMove();
+  error GameNotActive();
+
+  function app__proposeMove(bytes32 lobbyId, bytes32 pieceId, uint256 newX, uint256 newY) external;
+
+  function app__declareWin(bytes32 lobbyId) external;
+
+  function app__declareLoss(bytes32 lobbyId) external;
+
+  function app__declareDraw(bytes32 lobbyId) external;
+}

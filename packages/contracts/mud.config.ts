@@ -55,17 +55,9 @@ export default defineWorld({
         createdAt: "uint256",
         active: "bool",
         result: "GameResult",
+        activePlayerAddress: "address",
       },
       key: ["id"],
-    },
-    Game: {
-      schema: {
-        lobbyId: "bytes32",
-        createdAt: "uint256",
-        activePlayerAddress: "address",
-        active: "bool",
-      },
-      key: ["lobbyId"],
     },
     GamePiece: {
       schema: {

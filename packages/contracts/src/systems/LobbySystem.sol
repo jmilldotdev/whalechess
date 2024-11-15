@@ -2,7 +2,7 @@
 pragma solidity >=0.8.17;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Lobby, LobbyData, Squad, SquadData } from "../codegen/index.sol";
+import { Lobby, LobbyData, Squad, SquadData, GamePiece, GamePieceData, SquadPiece, SquadPieceData } from "../codegen/index.sol";
 import { GameResult } from "../codegen/common.sol";
 
 contract LobbySystem is System {
@@ -40,7 +40,8 @@ contract LobbySystem is System {
                 opponentSquadId: bytes32(0),
                 createdAt: block.timestamp,
                 active: true,
-                result: GameResult.NONE
+                result: GameResult.NONE,
+                activePlayerAddress: address(0)
             })
         );
 
@@ -60,7 +61,8 @@ contract LobbySystem is System {
             opponentSquadId: lobby.opponentSquadId,
             createdAt: lobby.createdAt,
             active: false,
-            result: lobby.result
+            result: lobby.result,
+            activePlayerAddress: address(0)
         }));
     }
 
@@ -86,7 +88,8 @@ contract LobbySystem is System {
             opponentSquadId: squadId,
             createdAt: lobby.createdAt,
             active: lobby.active,
-            result: lobby.result
+            result: lobby.result,
+            activePlayerAddress: lobby.ownerAddress
         }));
     }
 }
