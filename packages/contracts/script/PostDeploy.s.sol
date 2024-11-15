@@ -4,25 +4,61 @@ pragma solidity >=0.8.24;
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
-import { PieceSystem } from "../src/systems/PieceSystem.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
-    // Specify a store so that you can use tables directly in PostDeploy
     StoreSwitch.setStoreAddress(worldAddress);
-
-    // Load the private key from the `PRIVATE_KEY` environment variable (in .env)
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-
-    // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
 
     IWorld world = IWorld(worldAddress);
+    address deployer = vm.addr(deployerPrivateKey);
+    console.log("Deployer address:", deployer);
 
-    // Create pieces through the world contract
+    // Create all piece types
+    bytes32 pawnId = keccak256(abi.encodePacked("Pawn"));
+    bytes32 rookId = keccak256(abi.encodePacked("Rook"));
+    
+    console.log("Creating pieces...");
     world.app__createPiece("Pawn", "n1", "n1e1,n1w1");
+    world.app__createPiece("Knight", "n1e1,n1w1,e1n1,e1s1,w1n1,w1s1", "");
+    world.app__createPiece("Bishop", "n*e*,n*w*,s*e*,s*w*", "");
+    world.app__createPiece("Rook", "n*,s*,e*,w*", "");
     world.app__createPiece("Queen", "n*,s*,e*,w*,n*e*,n*w*,s*e*,s*w*", "");
+    world.app__createPiece("King", "n1,s1,e1,w1", "");
+
+    console.log("Giving pieces to deployer...");
+    // Give pieces to deployer (standard chess set)
+    world.app__givePieceToPlayer(deployer, pawnId, 8);    // 8 pawns
+    world.app__givePieceToPlayer(deployer, keccak256(abi.encodePacked("Knight")), 2);
+    world.app__givePieceToPlayer(deployer, keccak256(abi.encodePacked("Bishop")), 2);
+    world.app__givePieceToPlayer(deployer, rookId, 2);     // 2 rooks
+    world.app__givePieceToPlayer(deployer, keccak256(abi.encodePacked("Queen")), 1);
+    world.app__givePieceToPlayer(deployer, keccak256(abi.encodePacked("King")), 1);
+
+    console.log("Creating squad...");
+    // Create a standard chess squad
+    bytes32 squadId = world.app__createSquad("Standard Chess");
+    console.log("Squad created with ID:", vm.toString(squadId));
+
+    world.app__addPieceToSquad(squadId, rookId, 0, 0);
+    world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Knight")), 1, 0);
+    world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Bishop")), 2, 0);
+    world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Queen")), 3, 0);
+    world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("King")), 4, 0);
+    world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Bishop")), 5, 0);
+    world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Knight")), 6, 0);
+    world.app__addPieceToSquad(squadId, rookId, 7, 0);
+
+    world.app__addPieceToSquad(squadId, pawnId, 0, 1);
+    world.app__addPieceToSquad(squadId, pawnId, 1, 1);
+    world.app__addPieceToSquad(squadId, pawnId, 2, 1);
+    world.app__addPieceToSquad(squadId, pawnId, 3, 1);
+    world.app__addPieceToSquad(squadId, pawnId, 4, 1);
+    world.app__addPieceToSquad(squadId, pawnId, 5, 1);
+    world.app__addPieceToSquad(squadId, pawnId, 6, 1);
+    world.app__addPieceToSquad(squadId, pawnId, 7, 1);
 
     vm.stopBroadcast();
   }

@@ -20,5 +20,25 @@ export default defineWorld({
       },
       key: ["pieceId", "ownerAddress"],
     },
+    Squad: {
+      schema: {
+        id: "bytes32",
+        ownerAddress: "address",
+        createdAt: "uint256",
+        active: "bool",
+        name: "string",
+      },
+      key: ["id"],
+    },
+    SquadPiece: {
+      schema: {
+        id: "bytes32",
+        squadId: "bytes32",
+        pieceId: "bytes32",
+        startingXPosition: "uint256",
+        startingYPosition: "uint256",
+      },
+      key: ["id"],
+    },
   },
 });

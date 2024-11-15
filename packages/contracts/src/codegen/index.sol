@@ -5,3 +5,5 @@ pragma solidity >=0.8.24;
 
 import { Piece, PieceData } from "./tables/Piece.sol";
 import { PlayerPiece } from "./tables/PlayerPiece.sol";
+import { Squad, SquadData } from "./tables/Squad.sol";
+import { SquadPiece, SquadPieceData } from "./tables/SquadPiece.sol";
