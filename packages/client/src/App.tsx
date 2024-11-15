@@ -1,4 +1,3 @@
-import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "./MUDContext";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
 import { useState, useEffect } from "react";
@@ -13,11 +12,9 @@ const Home = () => {
   const navigate = useNavigate();
 
   const {
-    components: { Counter },
-    systemCalls: { increment },
+    components: { PlayerPiece },
+    systemCalls: { givePieceToPlayer },
   } = useMUD();
-
-  const counter = useComponentValue(Counter, singletonEntity);
 
   const isConnected = true;
 
