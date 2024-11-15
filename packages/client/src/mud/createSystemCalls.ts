@@ -3,10 +3,9 @@
  * for changes in the World state (using the System contracts).
  */
 
-import { getComponentValue } from "@latticexyz/recs";
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
-import { singletonEntity } from "@latticexyz/store-sync/recs";
+import { keccak256, toBytes } from "viem";
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
@@ -31,21 +30,23 @@ export function createSystemCalls(
    *   (https://github.com/latticexyz/mud/blob/main/templates/react/packages/client/src/mud/setupNetwork.ts#L77-L83).
    */
   { worldContract, waitForTransaction }: SetupNetworkResult,
-  { Counter }: ClientComponents,
+  { PlayerPiece }: ClientComponents
 ) {
-  const increment = async () => {
-    /*
-     * Because IncrementSystem
-     * (https://mud.dev/templates/typescript/contracts#incrementsystemsol)
-     * is in the root namespace, `.increment` can be called directly
-     * on the World contract.
-     */
-    const tx = await worldContract.write.app__increment();
+  const givePieceToPlayer = async (
+    ownerAddress: `0x${string}`,
+    pieceName: string,
+    quantity: number
+  ) => {
+    const pieceId = keccak256(toBytes(pieceName));
+    const tx = await worldContract.write.app__givePieceToPlayer([
+      ownerAddress,
+      pieceId,
+      BigInt(quantity),
+    ]);
     await waitForTransaction(tx);
-    return getComponentValue(Counter, singletonEntity);
   };
 
   return {
-    increment,
+    givePieceToPlayer, // Expose the givePieceToPlayer function
   };
 }
