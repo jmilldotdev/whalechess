@@ -6,12 +6,19 @@ export default defineWorld({
     Piece: {
       schema: {
         id: "bytes32",
-        owner: "address",
         name: "string",
         movementAbility: "string",
         captureAbility: "string",
       },
       key: ["id"],
+    },
+    PlayerPiece: {
+      schema: {
+        pieceId: "bytes32",
+        ownerAddress: "address",
+        quantity: "uint256",
+      },
+      key: ["pieceId", "ownerAddress"],
     },
   },
 });

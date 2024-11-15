@@ -2,8 +2,8 @@ import { useMUD } from "./MUDContext";
 
 export const App = () => {
   const {
-    components: { Piece },
-    systemCalls: { createPiece },
+    components: { PlayerPiece },
+    systemCalls: { givePieceToPlayer },
   } = useMUD();
 
   return (
@@ -14,11 +14,10 @@ export const App = () => {
           event.preventDefault();
           console.log(
             "created piece:",
-            await createPiece(
+            await givePieceToPlayer(
               "0x0000000000000000000000000000000000000000",
               "Pawn",
-              "n1",
-              "n1e1,n1w1"
+              1
             )
           );
         }}
@@ -29,11 +28,10 @@ export const App = () => {
         type="button"
         onClick={async (event) => {
           event.preventDefault();
-          await createPiece(
+          await givePieceToPlayer(
             "0x0000000000000000000000000000000000000000",
             "Queen",
-            "n*,s*,e*,w*,n*e*,n*w*,s*e*,s*w*",
-            "!"
+            1
           );
         }}
       >

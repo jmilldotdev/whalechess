@@ -17,7 +17,6 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 struct PieceData {
-  address owner;
   string name;
   string movementAbility;
   string captureAbility;
@@ -28,12 +27,12 @@ library Piece {
   ResourceId constant _tableId = ResourceId.wrap(0x7462617070000000000000000000000050696563650000000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0014010314000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0000000300000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (address, string, string, string)
-  Schema constant _valueSchema = Schema.wrap(0x0014010361c5c5c5000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (string, string, string)
+  Schema constant _valueSchema = Schema.wrap(0x00000003c5c5c500000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -49,11 +48,10 @@ library Piece {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](4);
-    fieldNames[0] = "owner";
-    fieldNames[1] = "name";
-    fieldNames[2] = "movementAbility";
-    fieldNames[3] = "captureAbility";
+    fieldNames = new string[](3);
+    fieldNames[0] = "name";
+    fieldNames[1] = "movementAbility";
+    fieldNames[2] = "captureAbility";
   }
 
   /**
@@ -68,48 +66,6 @@ library Piece {
    */
   function _register() internal {
     StoreCore.registerTable(_tableId, _fieldLayout, _keySchema, _valueSchema, getKeyNames(), getFieldNames());
-  }
-
-  /**
-   * @notice Get owner.
-   */
-  function getOwner(bytes32 id) internal view returns (address owner) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
-  }
-
-  /**
-   * @notice Get owner.
-   */
-  function _getOwner(bytes32 id) internal view returns (address owner) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (address(bytes20(_blob)));
-  }
-
-  /**
-   * @notice Set owner.
-   */
-  function setOwner(bytes32 id, address owner) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((owner)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set owner.
-   */
-  function _setOwner(bytes32 id, address owner) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = id;
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((owner)), _fieldLayout);
   }
 
   /**
@@ -631,15 +587,8 @@ library Piece {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(
-    bytes32 id,
-    address owner,
-    string memory name,
-    string memory movementAbility,
-    string memory captureAbility
-  ) internal {
-    bytes memory _staticData = encodeStatic(owner);
-
+  function set(bytes32 id, string memory name, string memory movementAbility, string memory captureAbility) internal {
+    bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(name, movementAbility, captureAbility);
     bytes memory _dynamicData = encodeDynamic(name, movementAbility, captureAbility);
 
@@ -652,15 +601,8 @@ library Piece {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(
-    bytes32 id,
-    address owner,
-    string memory name,
-    string memory movementAbility,
-    string memory captureAbility
-  ) internal {
-    bytes memory _staticData = encodeStatic(owner);
-
+  function _set(bytes32 id, string memory name, string memory movementAbility, string memory captureAbility) internal {
+    bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(name, movementAbility, captureAbility);
     bytes memory _dynamicData = encodeDynamic(name, movementAbility, captureAbility);
 
@@ -674,8 +616,7 @@ library Piece {
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 id, PieceData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.owner);
-
+    bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(_table.name, _table.movementAbility, _table.captureAbility);
     bytes memory _dynamicData = encodeDynamic(_table.name, _table.movementAbility, _table.captureAbility);
 
@@ -689,8 +630,7 @@ library Piece {
    * @notice Set the full data using the data struct.
    */
   function _set(bytes32 id, PieceData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.owner);
-
+    bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(_table.name, _table.movementAbility, _table.captureAbility);
     bytes memory _dynamicData = encodeDynamic(_table.name, _table.movementAbility, _table.captureAbility);
 
@@ -698,13 +638,6 @@ library Piece {
     _keyTuple[0] = id;
 
     StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
-  }
-
-  /**
-   * @notice Decode the tightly packed blob of static data using this table's field layout.
-   */
-  function decodeStatic(bytes memory _blob) internal pure returns (address owner) {
-    owner = (address(Bytes.getBytes20(_blob, 0)));
   }
 
   /**
@@ -736,17 +669,15 @@ library Piece {
 
   /**
    * @notice Decode the tightly packed blobs using this table's field layout.
-   * @param _staticData Tightly packed static fields.
+   *
    * @param _encodedLengths Encoded lengths of dynamic fields.
    * @param _dynamicData Tightly packed dynamic fields.
    */
   function decode(
-    bytes memory _staticData,
+    bytes memory,
     EncodedLengths _encodedLengths,
     bytes memory _dynamicData
   ) internal pure returns (PieceData memory _table) {
-    (_table.owner) = decodeStatic(_staticData);
-
     (_table.name, _table.movementAbility, _table.captureAbility) = decodeDynamic(_encodedLengths, _dynamicData);
   }
 
@@ -768,14 +699,6 @@ library Piece {
     _keyTuple[0] = id;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
-  }
-
-  /**
-   * @notice Tightly pack static (fixed length) data using this table's schema.
-   * @return The static data, encoded into a sequence of bytes.
-   */
-  function encodeStatic(address owner) internal pure returns (bytes memory) {
-    return abi.encodePacked(owner);
   }
 
   /**
@@ -816,13 +739,11 @@ library Piece {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
-    address owner,
     string memory name,
     string memory movementAbility,
     string memory captureAbility
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(owner);
-
+    bytes memory _staticData;
     EncodedLengths _encodedLengths = encodeLengths(name, movementAbility, captureAbility);
     bytes memory _dynamicData = encodeDynamic(name, movementAbility, captureAbility);
 

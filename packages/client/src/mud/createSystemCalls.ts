@@ -3,10 +3,9 @@
  * for changes in the World state (using the System contracts).
  */
 
-import { getComponentValue } from "@latticexyz/recs";
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
-import { singletonEntity } from "@latticexyz/store-sync/recs";
+import { keccak256, toBytes } from "viem";
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
@@ -31,26 +30,23 @@ export function createSystemCalls(
    *   (https://github.com/latticexyz/mud/blob/main/templates/react/packages/client/src/mud/setupNetwork.ts#L77-L83).
    */
   { worldContract, waitForTransaction }: SetupNetworkResult,
-  { Piece }: ClientComponents
+  { PlayerPiece }: ClientComponents
 ) {
-  const createPiece = async (
-    owner: `0x${string}`,
-    name: string,
-    movementAbility: string,
-    captureAbility: string
+  const givePieceToPlayer = async (
+    ownerAddress: `0x${string}`,
+    pieceName: string,
+    quantity: number
   ) => {
-    // Call the createPiece function in the PieceSystem contract
-    const tx = await worldContract.write.app__createPiece([
-      owner,
-      name,
-      movementAbility,
-      captureAbility,
+    const pieceId = keccak256(toBytes(pieceName));
+    const tx = await worldContract.write.app__givePieceToPlayer([
+      ownerAddress,
+      pieceId,
+      BigInt(quantity),
     ]);
     await waitForTransaction(tx);
-    return getComponentValue(Piece, singletonEntity);
   };
 
   return {
-    createPiece, // Expose the createPiece function
+    givePieceToPlayer, // Expose the givePieceToPlayer function
   };
 }

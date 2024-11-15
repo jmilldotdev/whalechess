@@ -9,10 +9,7 @@ pragma solidity >=0.8.24;
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IPieceSystem {
-  function app__createPiece(
-    address owner,
-    string memory name,
-    string memory movementAbility,
-    string memory captureAbility
-  ) external;
+  function app__createPiece(string memory name, string memory movementAbility, string memory captureAbility) external;
+
+  function app__givePieceToPlayer(address ownerAddress, bytes32 pieceId, uint256 quantity) external;
 }
