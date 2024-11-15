@@ -3,11 +3,15 @@ import { defineWorld } from "@latticexyz/world";
 export default defineWorld({
   namespace: "app",
   tables: {
-    Counter: {
+    Piece: {
       schema: {
-        value: "uint32",
+        id: "bytes32",
+        owner: "address",
+        name: "string",
+        movementAbility: "string",
+        captureAbility: "string",
       },
-      key: [],
+      key: ["id"],
     },
   },
 });

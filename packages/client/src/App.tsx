@@ -1,28 +1,43 @@
-import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "./MUDContext";
-import { singletonEntity } from "@latticexyz/store-sync/recs";
 
 export const App = () => {
   const {
-    components: { Counter },
-    systemCalls: { increment },
+    components: { Piece },
+    systemCalls: { createPiece },
   } = useMUD();
-
-  const counter = useComponentValue(Counter, singletonEntity);
 
   return (
     <>
-      <div>
-        Counter: <span>{counter?.value ?? "??"}</span>
-      </div>
       <button
         type="button"
         onClick={async (event) => {
           event.preventDefault();
-          console.log("new counter value:", await increment());
+          console.log(
+            "created piece:",
+            await createPiece(
+              "0x0000000000000000000000000000000000000000",
+              "Pawn",
+              "n1",
+              "n1e1,n1w1"
+            )
+          );
         }}
       >
-        Increment
+        Create Pawn
+      </button>
+      <button
+        type="button"
+        onClick={async (event) => {
+          event.preventDefault();
+          await createPiece(
+            "0x0000000000000000000000000000000000000000",
+            "Queen",
+            "n*,s*,e*,w*,n*e*,n*w*,s*e*,s*w*",
+            "!"
+          );
+        }}
+      >
+        Create Queen
       </button>
     </>
   );
