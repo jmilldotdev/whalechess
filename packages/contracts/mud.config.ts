@@ -2,6 +2,9 @@ import { defineWorld } from "@latticexyz/world";
 
 export default defineWorld({
   namespace: "app",
+  enums: {
+    GameResult: ["NONE", "WIN", "LOSS", "DRAW"],
+  },
   tables: {
     CapturableAbility: "string",
     DrunkenModifier: "uint256",
@@ -41,6 +44,38 @@ export default defineWorld({
         startingYPosition: "uint256",
       },
       key: ["id"],
+    },
+    Lobby: {
+      schema: {
+        id: "bytes32",
+        ownerAddress: "address",
+        ownerSquadId: "bytes32",
+        opponentAddress: "address",
+        opponentSquadId: "bytes32",
+        createdAt: "uint256",
+        active: "bool",
+        result: "GameResult",
+      },
+      key: ["id"],
+    },
+    Game: {
+      schema: {
+        lobbyId: "bytes32",
+        createdAt: "uint256",
+        activePlayerAddress: "address",
+        active: "bool",
+      },
+      key: ["lobbyId"],
+    },
+    GamePiece: {
+      schema: {
+        gameId: "bytes32",
+        squadPieceId: "bytes32",
+        xPosition: "uint256",
+        yPosition: "uint256",
+        captured: "bool",
+      },
+      key: ["gameId", "squadPieceId"],
     },
   },
 });

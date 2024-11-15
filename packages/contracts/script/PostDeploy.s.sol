@@ -51,23 +51,23 @@ contract PostDeploy is Script {
     bytes32 squadId = world.app__createSquad("Standard Chess");
     console.log("Squad created with ID:", vm.toString(squadId));
 
-    world.app__addPieceToSquad(squadId, rookId, 0, 0);
-    world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Knight")), 1, 0);
-    world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Bishop")), 2, 0);
-    world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Queen")), 3, 0);
-    world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("King")), 4, 0);
-    world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Bishop")), 5, 0);
-    world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Drunken Knight")), 6, 0);
-    world.app__addPieceToSquad(squadId, rookId, 7, 0);
+    // world.app__addPieceToSquad(squadId, rookId, 0, 0);
+    // world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Knight")), 1, 0);
+    // world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Bishop")), 2, 0);
+    // world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Queen")), 3, 0);
+    // world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("King")), 4, 0);
+    // world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Bishop")), 5, 0);
+    // world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Drunken Knight")), 6, 0);
+    // world.app__addPieceToSquad(squadId, rookId, 7, 0);
 
-    world.app__addPieceToSquad(squadId, pawnId, 0, 1);
-    world.app__addPieceToSquad(squadId, pawnId, 1, 1);
-    world.app__addPieceToSquad(squadId, pawnId, 2, 1);
-    world.app__addPieceToSquad(squadId, pawnId, 3, 1);
-    world.app__addPieceToSquad(squadId, pawnId, 4, 1);
-    world.app__addPieceToSquad(squadId, pawnId, 5, 1);
-    world.app__addPieceToSquad(squadId, pawnId, 6, 1);
-    world.app__addPieceToSquad(squadId, pawnId, 7, 1);
+    // world.app__addPieceToSquad(squadId, pawnId, 0, 1);
+    // world.app__addPieceToSquad(squadId, pawnId, 1, 1);
+    // world.app__addPieceToSquad(squadId, pawnId, 2, 1);
+    // world.app__addPieceToSquad(squadId, pawnId, 3, 1);
+    // world.app__addPieceToSquad(squadId, pawnId, 4, 1);
+    // world.app__addPieceToSquad(squadId, pawnId, 5, 1);
+    // world.app__addPieceToSquad(squadId, pawnId, 6, 1);
+    // world.app__addPieceToSquad(squadId, pawnId, 7, 1);
 
     vm.stopBroadcast();
   }
