@@ -4,14 +4,15 @@ import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { createConfig, WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { http } from "viem";
-import { mainnet } from "viem/chains";
-import { envs } from "./lib/config";
+import { envs, getActiveChain, getActiveEvmNetwork } from "./lib/config";
+
+const activeChain = getActiveChain();
 
 const config = createConfig({
-  chains: [mainnet],
+  chains: [activeChain],
   multiInjectedProviderDiscovery: false,
   transports: {
-    [mainnet.id]: http(),
+    [activeChain.id]: http(),
   },
 });
 
@@ -23,6 +24,9 @@ const DynamicAuthProvider = ({ children }: { children: React.ReactNode }) => {
       settings={{
         environmentId: envs.dynamicEnvironmentId,
         walletConnectors: [EthereumWalletConnectors],
+        overrides: {
+          evmNetworks: () => [getActiveEvmNetwork()],
+        },
       }}
     >
       <WagmiProvider config={config}>
