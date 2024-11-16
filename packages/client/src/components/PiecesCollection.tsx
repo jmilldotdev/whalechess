@@ -1,4 +1,3 @@
-import { Entity, getComponentValueStrict } from "@latticexyz/recs";
 import { useMUD } from "../MUDContext";
 import { useAccount } from "wagmi";
 
@@ -9,6 +8,10 @@ export function PiecesCollection() {
   } = useMUD();
 
   // Query all pieces owned by the current player
+  const pieceEntities = useStore((state) =>
+    Object.values(state.getRecords(tables.Piece))
+  );
+  console.log("pieces", pieceEntities);
   const playerPieceEntities = useStore((state) =>
     Object.values(state.getRecords(tables.PlayerPiece)).filter(
       (entity) =>
@@ -23,9 +26,10 @@ export function PiecesCollection() {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {playerPieceEntities.map((entity) => {
-          const pieceData = useStore((state) =>
-            state.getValue(tables.Piece, { id: entity.value.pieceId })
+          const pieceData = pieceEntities.find(
+            (piece) => piece.fields.id === entity.value.pieceId
           );
+          console.log(pieceData);
 
           return (
             <div
@@ -33,11 +37,9 @@ export function PiecesCollection() {
               className="bg-white bg-opacity-80 border border-gray-300 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow"
             >
               <h3 className="font-semibold text-lg text-center mb-2">
-                {pieceData?.name}
+                {pieceData?.value.name}
               </h3>
               <div className="mt-2 text-sm text-gray-700">
-                <p>Movement: {pieceData?.movementAbility}</p>
-                <p>Capture: {pieceData?.captureAbility}</p>
                 <p className="mt-2">
                   Quantity: {entity.value.quantity.toString()}
                 </p>
