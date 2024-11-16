@@ -25,9 +25,8 @@ Note: you may need to restart the development server once after the contracts co
 
 ## Deployed World Contracts
 
-
-[Garnet](https://explorer.garnetchain.com/address/0x44eC6b7621019cBC4C39a45CD0f5F738b704dDC1)
-[Base](https://base-sepolia.blockscout.com/address/0xE34670f20eF5b18c3CEc38e03D435D23eEE4d648)
-[Flow](https://evm-testnet.flowscan.io/address/0x80F76DD963D293B5B7B80f6897d4356D16cEC962)
-[Linea](https://sepolia.lineascan.build/address/0x770280127f13a2cf3d7549d0940fdc4c7ff140c6)
-[Polygon](https://amoy.polygonscan.com/address/0x1c70a7f9c77e3652dafe469eafea0d0904ed584d)
+- [Garnet](https://explorer.garnetchain.com/address/0x44eC6b7621019cBC4C39a45CD0f5F738b704dDC1)
+- [Base](https://base-sepolia.blockscout.com/address/0xE34670f20eF5b18c3CEc38e03D435D23eEE4d648)
+- [Flow](https://evm-testnet.flowscan.io/address/0x80F76DD963D293B5B7B80f6897d4356D16cEC962)
+- [Linea](https://sepolia.lineascan.build/address/0x770280127f13a2cf3d7549d0940fdc4c7ff140c6)
+- [Polygon](https://amoy.polygonscan.com/address/0x1c70a7f9c77e3652dafe469eafea0d0904ed584d)
