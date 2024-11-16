@@ -1,45 +1,45 @@
-import { useEntityQuery } from "@latticexyz/react";
-import { Has, HasValue, getComponentValueStrict } from "@latticexyz/recs";
+import { Entity, getComponentValueStrict } from "@latticexyz/recs";
 import { useMUD } from "../MUDContext";
 import { useAccount } from "wagmi";
 
 export function PiecesCollection() {
   const { address } = useAccount();
   const {
-    components: { PlayerPiece, Piece },
+    network: { tables, useStore },
   } = useMUD();
 
   // Query all pieces owned by the current player
-  const playerPieceEntities = useEntityQuery([
-    Has(PlayerPiece),
-    HasValue(PlayerPiece, {
-      ownerAddress: address?.toLowerCase(),
-    }),
-  ]);
-  console.log(playerPieceEntities);
+  const playerPieceEntities = useStore((state) =>
+    Object.values(state.getRecords(tables.PlayerPiece)).filter(
+      (entity) =>
+        entity.value.ownerAddress.toLowerCase() === address?.toLowerCase()
+    )
+  );
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">My Pieces</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <h2 className="text-2xl font-bold mb-6 text-center text-white">
+        My Pieces
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {playerPieceEntities.map((entity) => {
-          const playerPieceData = getComponentValueStrict(PlayerPiece, entity);
-          const pieceData = getComponentValueStrict(
-            Piece,
-            playerPieceData.pieceId
+          const pieceData = useStore((state) =>
+            state.getValue(tables.Piece, { id: entity.value.pieceId })
           );
 
           return (
             <div
-              key={entity}
-              className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+              key={entity.value.pieceId}
+              className="bg-white bg-opacity-80 border border-gray-300 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow"
             >
-              <h3 className="font-semibold text-lg">{pieceData.name}</h3>
-              <div className="mt-2 text-sm text-gray-600">
-                <p>Movement: {pieceData.movementAbility}</p>
-                <p>Capture: {pieceData.captureAbility}</p>
+              <h3 className="font-semibold text-lg text-center mb-2">
+                {pieceData?.name}
+              </h3>
+              <div className="mt-2 text-sm text-gray-700">
+                <p>Movement: {pieceData?.movementAbility}</p>
+                <p>Capture: {pieceData?.captureAbility}</p>
                 <p className="mt-2">
-                  Quantity: {playerPieceData.quantity.toString()}
+                  Quantity: {entity.value.quantity.toString()}
                 </p>
               </div>
             </div>
@@ -48,7 +48,7 @@ export function PiecesCollection() {
       </div>
 
       {playerPieceEntities.length === 0 && (
-        <p className="text-gray-500 text-center">
+        <p className="text-gray-500 text-center mt-4">
           You don&apos;t have any pieces yet.
         </p>
       )}
