@@ -94,7 +94,8 @@ app.post("/generate-piece", async (req, res) => {
         },
         {
           role: "user",
-          content: req.body.prompt || "Generate a unique chess piece",
+          content:
+            req.body.prompt || "Generate a unique cool custom chess piece",
         },
       ],
       model: "gpt-3.5-turbo",
@@ -135,14 +136,14 @@ app.post("/generate-piece", async (req, res) => {
 
     // 3. Give piece to player
     const pieceId = keccak256(
-      encodePacked(["string"], ["SuperPawn"])
+      encodePacked(["string"], [pieceData.name])
     ) as `0x${string}`;
 
     const { request: request2 } = await publicClient.simulateContract({
       address: WORLD_ADDRESS,
       abi: IWorldAbi,
       functionName: "app__givePieceToPlayer",
-      args: [account.address, pieceId, 1n],
+      args: [req.body.destinationAddress || account.address, pieceId, 1n],
       account,
     });
 
