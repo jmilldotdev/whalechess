@@ -28,14 +28,6 @@ contract PostDeploy is Script {
     world.app__createPiece("Queen", "/chess/metal/queen.png", "n*,s*,e*,w*,n*e*,n*w*,s*e*,s*w*", "", new PieceTypes.ComponentData[](0));
     world.app__createPiece("King", "/chess/metal/king.png", "n1,s1,e1,w1", "", new PieceTypes.ComponentData[](0));
 
-    // Create some custom pieces
-    PieceTypes.ComponentData[] memory drunkenKnightComponents = new PieceTypes.ComponentData[](1);
-    drunkenKnightComponents[0] = PieceTypes.ComponentData({
-      name: "DrunkenModifier",
-      value: abi.encode(50)
-    });
-    world.app__createPiece("Drunken Knight", "", "n1e1,n1w1,e1n1,e1s1,w1n1,w1s1", "", drunkenKnightComponents);
-
     console.log("Giving pieces to deployer...");
     // Give pieces to deployer (standard chess set)
     world.app__givePieceToPlayer(deployer, pawnId, 8);    // 8 pawns
