@@ -70,7 +70,7 @@ export const App = () => {
           </button>
         </div>
       )}
-      <Toaster position="top-right" />
+      <Toaster position="top-right" richColors />
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />

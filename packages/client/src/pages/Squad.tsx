@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useAccount } from "wagmi";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 // import { PiecesCollection } from "../components/PiecesCollection";
 import { useMUD } from "../MUDContext";
@@ -31,8 +33,11 @@ type PieceEntity = {
 
 export const Squad = () => {
   const { address } = useAccount();
+  const navigate = useNavigate();
+  const [isSaving, setIsSaving] = useState(false);
 
   const {
+    systemCalls: { createSquad },
     network: { tables, useStore },
   } = useMUD();
 
@@ -41,6 +46,7 @@ export const Squad = () => {
   const pieceEntities = useMemo(() => {
     return Object.values(getRecords(tables.Piece));
   }, [getRecords, tables.Piece]);
+  console.log("pieceEntities", pieceEntities);
 
   const playerPieceEntities = useMemo(
     () =>
@@ -142,27 +148,23 @@ export const Squad = () => {
     if (fromBoard && toBoard) {
       // Swap pieces on board while preserving tile colors
       const newBoard = [...boardPieces];
-      const sourcePiece = newBoard[sourceRow][sourceCol].piece;
-      const sourceId = newBoard[sourceRow][sourceCol].id;
-      const sourceImage = newBoard[sourceRow][sourceCol].image;
-      const targetPiece = newBoard[targetRow!][targetCol!].piece;
-      const targetId = newBoard[targetRow!][targetCol!].id;
-      const targetImage = newBoard[targetRow!][targetCol!].image;
+      const sourcePiece = newBoard[sourceRow][sourceCol];
+      const targetPiece = newBoard[targetRow!][targetCol!];
 
       // Update source square
       newBoard[sourceRow][sourceCol] = {
-        isWhite: newBoard[sourceRow][sourceCol].isWhite,
-        piece: targetPiece,
-        id: targetId,
-        image: targetImage,
+        ...sourcePiece,
+        piece: targetPiece.piece,
+        id: targetPiece.id,
+        image: targetPiece.image,
       };
 
       // Update target square
       newBoard[targetRow!][targetCol!] = {
-        isWhite: newBoard[targetRow!][targetCol!].isWhite,
-        piece: sourcePiece,
-        id: sourceId,
-        image: sourceImage,
+        ...targetPiece,
+        piece: sourcePiece.piece,
+        id: sourcePiece.id,
+        image: sourcePiece.image,
       };
 
       setBoardPieces(newBoard);
@@ -171,7 +173,7 @@ export const Squad = () => {
       const newBoard = [...boardPieces];
       const movedPiece = { ...newBoard[sourceRow][sourceCol] };
       newBoard[sourceRow][sourceCol] = {
-        isWhite: movedPiece.isWhite,
+        ...movedPiece,
         piece: null,
         id: undefined,
         image: "",
@@ -193,7 +195,7 @@ export const Squad = () => {
 
       // Update board with collection piece
       newBoard[targetRow!][targetCol!] = {
-        isWhite: newBoard[targetRow!][targetCol!].isWhite,
+        ...newBoard[targetRow!][targetCol!],
         piece: pieceEntity?.fields.name.toLowerCase() || "",
         id: id,
         image: pieceEntity?.fields.image || "",
@@ -206,6 +208,53 @@ export const Squad = () => {
           p.id === id ? { ...p, quantity: p.quantity - 1 } : p
         )
       );
+    }
+  };
+
+  const handleSaveSquad = async () => {
+    if (isSaving) return;
+
+    try {
+      setIsSaving(true);
+
+      // Validate board has at least one piece
+      const pieces = boardPieces
+        .flatMap((row, y) =>
+          row.map((square, x) => ({
+            x,
+            y,
+            piece: square.piece,
+            id: square.id,
+          }))
+        )
+        .filter((square) => square.piece !== null);
+
+      if (pieces.length === 0) {
+        toast.error("Please place at least one piece on the board");
+        return;
+      }
+
+      // Format pieces for contract call
+      const squadPieces = pieces.map((p) => ({
+        pieceId: p.id!.split(":")[1],
+        x: p.x,
+        y: p.y,
+      }));
+
+      // Create squad name using timestamp to ensure uniqueness
+      const squadName = `Squad_${Date.now()}`;
+
+      await createSquad(squadName, squadPieces);
+
+      toast.success("Squad saved successfully!");
+      navigate("/"); // Redirect to home page
+    } catch (error) {
+      console.error("Failed to save squad:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to save squad"
+      );
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -333,21 +382,31 @@ export const Squad = () => {
             }}
           />
           <img
-            src="/buttons/save.png"
-            alt="Save"
+            src={isSaving ? "/buttons/saving.png" : "/buttons/save.png"}
+            alt={isSaving ? "Saving..." : "Save"}
             style={{
               height: "50px",
               objectFit: "contain",
-              cursor: "pointer",
+              cursor: isSaving ? "not-allowed" : "pointer",
               marginTop: "15px",
-              filter: "drop-shadow(0 0 5px rgba(255, 255, 255, 0.5))", // White glow
-              transition: "filter 0.3s ease", // Add transition for smooth effect
+              filter: isSaving
+                ? "brightness(0.7)"
+                : "drop-shadow(0 0 5px rgba(255, 255, 255, 0.5))",
+              transition: "filter 0.3s ease",
+              opacity: isSaving ? 0.7 : 1,
             }}
+            onClick={handleSaveSquad}
             onMouseOver={(e) => {
-              e.currentTarget.style.filter = "drop-shadow(0 0 10px rgba(255, 255, 255, 1))"; // Brighter white glow on hover
+              if (!isSaving) {
+                e.currentTarget.style.filter =
+                  "drop-shadow(0 0 10px rgba(255, 255, 255, 1))";
+              }
             }}
             onMouseOut={(e) => {
-              e.currentTarget.style.filter = "drop-shadow(0 0 5px rgba(255, 255, 255, 0.5))"; // Reset glow to white
+              if (!isSaving) {
+                e.currentTarget.style.filter =
+                  "drop-shadow(0 0 5px rgba(255, 255, 255, 0.5))";
+              }
             }}
           />
         </div>

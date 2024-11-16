@@ -69,9 +69,6 @@ export function createSystemCalls(
       //   encodePacked(["string"], [squadId])
       // ) as `0x${string}`;
 
-      console.log("lll", lobbyId);
-      console.log("ggg", squadId);
-
       const tx = await worldContract.write.app__joinLobby([
         lobbyId as `0x${string}`,
         squadId as `0x${string}`,
@@ -84,8 +81,31 @@ export function createSystemCalls(
     }
   };
 
+  const createSquad = async (
+    name: string,
+    pieces: { pieceId: string; x: number; y: number }[]
+  ) => {
+    try {
+      console.log("ppp", pieces);
+      const tx = await worldContract.write.app__createSquad([
+        name,
+        pieces.map((p) => ({
+          pieceId: p.pieceId as `0x${string}`,
+          x: BigInt(p.x),
+          y: BigInt(p.y),
+        })),
+      ]);
+      await waitForTransaction(tx);
+      return tx;
+    } catch (error) {
+      console.error("Failed to create squad:", error);
+      throw error;
+    }
+  };
+
   return {
     givePieceToPlayer,
     joinLobby,
+    createSquad,
   };
 }
