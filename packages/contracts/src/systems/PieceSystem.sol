@@ -44,10 +44,12 @@ contract PieceSystem is System {
 
   function givePieceToPlayer(address ownerAddress, bytes32 pieceId, uint256 quantity) public {
     // Get current quantity (if any)
-    uint256 currentQuantity = PlayerPiece.get(pieceId, ownerAddress);
+    bytes32 id = keccak256(abi.encodePacked(pieceId, ownerAddress));
+    uint256 currentQuantity = PlayerPiece.getQuantity(id);
     
     // Set new quantity (either create or update)
     PlayerPiece.set(
+        id,
         pieceId,
         ownerAddress,
         currentQuantity + quantity

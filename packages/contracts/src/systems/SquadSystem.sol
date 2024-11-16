@@ -40,7 +40,8 @@ contract SquadSystem is System {
         require(squadOwner == player, "Not squad owner");
         
         // Check if player owns the piece
-        uint256 ownedQuantity = PlayerPiece.get(pieceId, player);
+        bytes32 playerPieceId = keccak256(abi.encodePacked(pieceId, player));
+        uint256 ownedQuantity = PlayerPiece.getQuantity(playerPieceId);
         require(ownedQuantity > 0, "Piece not owned");
 
         // Validate position (assuming 8x2 board)
