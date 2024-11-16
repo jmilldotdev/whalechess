@@ -9,14 +9,6 @@ pragma solidity >=0.8.24;
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface ILobbySystem {
-  error LobbyNotFound();
-  error LobbyAlreadyActive();
-  error LobbyIsActive();
-  error NotLobbyOwner();
-  error LobbySquadNotFound();
-  error LobbySquadNotOwned();
-  error LobbyJoinInProgress();
-
   function app__createLobby(bytes32 squadId) external returns (bytes32);
 
   function app__deleteLobby(bytes32 lobbyId) external;

@@ -6,12 +6,6 @@ import { GamePiece, GamePieceData, Lobby, LobbyData } from "../codegen/index.sol
 import { GameResult } from "../codegen/common.sol";
 
 contract GameSystem is System {
-    error GameLobbyNotFound();
-    error NotActivePlayer();
-    error GameNotLobbyOwner();
-    error InvalidMove();
-    error GameNotActive();
-
     function proposeMove(
         bytes32 lobbyId,
         bytes32 pieceId,
@@ -19,8 +13,8 @@ contract GameSystem is System {
         uint256 newY
     ) public {
         LobbyData memory lobby = Lobby.get(lobbyId);
-        if (!lobby.active || lobby.result != GameResult.NONE) revert GameNotActive();
-        if (lobby.activePlayerAddress != _msgSender()) revert NotActivePlayer();
+        require(lobby.active && lobby.result == GameResult.NONE, "Game not active");
+        require(lobby.activePlayerAddress == _msgSender(), "Not active player");
 
         // Update piece position
         GamePieceData memory movingPiece = GamePiece.get(lobbyId, pieceId);
@@ -30,7 +24,6 @@ contract GameSystem is System {
         GamePieceData memory targetPiece = GamePiece.get(lobbyId, targetPieceId);
         
         if (targetPiece.xPosition == newX && targetPiece.yPosition == newY && !targetPiece.captured) {
-            // Capture the piece
             GamePiece.set(
                 lobbyId,
                 targetPieceId,
@@ -42,7 +35,6 @@ contract GameSystem is System {
             );
         }
 
-        // Move the piece
         GamePiece.set(
             lobbyId,
             pieceId,
@@ -53,7 +45,6 @@ contract GameSystem is System {
             })
         );
 
-        // Switch active player
         address nextPlayer = lobby.activePlayerAddress == lobby.ownerAddress 
             ? lobby.opponentAddress 
             : lobby.ownerAddress;
@@ -75,9 +66,8 @@ contract GameSystem is System {
 
     function declareWin(bytes32 lobbyId) public {
         LobbyData memory lobby = Lobby.get(lobbyId);
-        
-        if (lobby.ownerAddress != _msgSender()) revert GameNotLobbyOwner();
-        if (!lobby.active || lobby.result != GameResult.NONE) revert GameNotActive();
+        require(lobby.ownerAddress == _msgSender(), "Not lobby owner");
+        require(lobby.active && lobby.result == GameResult.NONE, "Game not active");
 
         Lobby.set(
             lobbyId,
@@ -96,9 +86,8 @@ contract GameSystem is System {
 
     function declareLoss(bytes32 lobbyId) public {
         LobbyData memory lobby = Lobby.get(lobbyId);
-        
-        if (lobby.ownerAddress != _msgSender()) revert GameNotLobbyOwner();
-        if (!lobby.active || lobby.result != GameResult.NONE) revert GameNotActive();
+        require(lobby.ownerAddress == _msgSender(), "Not lobby owner");
+        require(lobby.active && lobby.result == GameResult.NONE, "Game not active");
 
         Lobby.set(
             lobbyId,
@@ -117,9 +106,8 @@ contract GameSystem is System {
 
     function declareDraw(bytes32 lobbyId) public {
         LobbyData memory lobby = Lobby.get(lobbyId);
-        
-        if (lobby.ownerAddress != _msgSender()) revert GameNotLobbyOwner();
-        if (!lobby.active || lobby.result != GameResult.NONE) revert GameNotActive();
+        require(lobby.ownerAddress == _msgSender(), "Not lobby owner");
+        require(lobby.active && lobby.result == GameResult.NONE, "Game not active");
 
         Lobby.set(
             lobbyId,

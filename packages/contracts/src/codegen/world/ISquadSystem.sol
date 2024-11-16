@@ -9,13 +9,6 @@ pragma solidity >=0.8.24;
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface ISquadSystem {
-  error SquadNameEmpty();
-  error PieceNotOwned();
-  error PieceNotInSquad();
-  error InvalidPosition();
-  error NotSquadOwner();
-  error SquadNotFound();
-
   function app__createSquad(string memory name) external returns (bytes32);
 
   function app__addPieceToSquad(bytes32 squadId, bytes32 pieceId, uint256 x, uint256 y) external;
