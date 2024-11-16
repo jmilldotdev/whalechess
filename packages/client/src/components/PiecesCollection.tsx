@@ -11,7 +11,6 @@ export function PiecesCollection() {
   const pieceEntities = useStore((state) =>
     Object.values(state.getRecords(tables.Piece))
   );
-  console.log("pieces", pieceEntities);
   const playerPieceEntities = useStore((state) =>
     Object.values(state.getRecords(tables.PlayerPiece)).filter(
       (entity) =>
@@ -39,6 +38,7 @@ export function PiecesCollection() {
               <h3 className="font-semibold text-lg text-center mb-2">
                 {pieceData?.value.name}
               </h3>
+              <img src={pieceData?.fields.image} alt={pieceData?.value.name} />
               <div className="mt-2 text-sm text-gray-700">
                 <p className="mt-2">
                   Quantity: {entity.value.quantity.toString()}

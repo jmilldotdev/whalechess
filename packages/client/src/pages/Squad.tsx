@@ -1,27 +1,64 @@
-import { useEffect, useState } from "react";
-import { PiecesCollection } from "../components/PiecesCollection";
+import { useEffect, useState, useMemo } from "react";
+import { useAccount } from "wagmi";
 
+// import { PiecesCollection } from "../components/PiecesCollection";
+import { useMUD } from "../MUDContext";
 type ChessPiece = {
   isWhite: boolean;
   piece: string | null;
   id?: string;
+  image: string;
 };
 
 type CollectionPiece = {
   id: string;
   piece: string;
+  image: string;
+  quantity: number;
+};
+
+// Add new type for piece entities
+type PieceEntity = {
+  id: string;
+  fields: {
+    name: string;
+    image: string;
+    captureAbility: string;
+    movementAbility: string;
+    id: string;
+  };
 };
 
 export const Squad = () => {
+  const { address } = useAccount();
+
+  const {
+    network: { tables, useStore },
+  } = useMUD();
+
+  const getRecords = useStore((state) => state.getRecords);
+
+  const pieceEntities = useMemo(() => {
+    return Object.values(getRecords(tables.Piece));
+  }, [getRecords, tables.Piece]);
+
+  const playerPieceEntities = useMemo(
+    () =>
+      Object.values(getRecords(tables.PlayerPiece)).filter(
+        (entity) =>
+          entity.value.ownerAddress.toLowerCase() === address?.toLowerCase()
+      ),
+    [getRecords, tables.PlayerPiece, address]
+  );
+
   const [boardSize, setBoardSize] = useState({ width: 0, height: 0 });
   const [boardPieces, setBoardPieces] = useState<ChessPiece[][]>([]);
   const [collection, setCollection] = useState<CollectionPiece[]>([]);
 
-  // Calculate the board size based on window height
   useEffect(() => {
     const calculateBoardSize = () => {
       const height = window.innerHeight;
-      const size = Math.min(height * 0.8, window.innerWidth * 0.4); // 80% of height or 40% of width
+      const size = Math.min(height * 0.8, window.innerWidth * 0.4);
       setBoardSize({ width: size, height: size });
     };
 
@@ -30,7 +67,28 @@ export const Squad = () => {
     return () => window.removeEventListener("resize", calculateBoardSize);
   }, []);
 
-  // Initialize board with unique IDs
+  // Initialize collection from pieceEntities
+  useEffect(() => {
+    if (pieceEntities.length > 0) {
+      const newCollection = pieceEntities.map((entity: PieceEntity) => {
+        const playerPiece = playerPieceEntities.find(
+          (p) => p.value.pieceId === entity.fields.id
+        );
+        return {
+          id: entity.id,
+          piece: entity.fields.name.toLowerCase(),
+          image: entity.fields.image,
+          quantity: playerPiece
+            ? Number(playerPiece.value.quantity.toString())
+            : 0,
+        };
+      });
+
+      setCollection(newCollection);
+    }
+  }, [pieceEntities, playerPieceEntities]);
+
+  // Initialize empty board
   useEffect(() => {
     const initialBoard: ChessPiece[][] = Array(2)
       .fill(null)
@@ -40,42 +98,16 @@ export const Squad = () => {
           .map((_, j) => {
             const i = rowIndex + 6;
             const isWhite = (i + j) % 2 === 0;
-            let piece = null;
-
-            if (i === 6) {
-              piece = "pawn";
-            } else if (i === 7) {
-              switch (j) {
-                case 0:
-                case 7:
-                  piece = "rook";
-                  break;
-                case 1:
-                case 6:
-                  piece = "knight";
-                  break;
-                case 2:
-                case 5:
-                  piece = "bishop";
-                  break;
-                case 3:
-                  piece = "queen";
-                  break;
-                case 4:
-                  piece = "king";
-                  break;
-              }
-            }
-
             return {
               isWhite,
-              piece,
-              id: piece ? `${piece}-${i}-${j}` : undefined,
+              piece: null,
+              id: undefined,
+              image: "",
             };
           })
       );
     setBoardPieces(initialBoard);
-  }, []);
+  }, [pieceEntities]);
 
   const handleDragStart = (
     e: React.DragEvent,
@@ -105,34 +137,32 @@ export const Squad = () => {
   ) => {
     e.preventDefault();
     const data = JSON.parse(e.dataTransfer.getData("application/json"));
-    const {
-      fromBoard,
-      piece,
-      id,
-      rowIndex: sourceRow,
-      colIndex: sourceCol,
-    } = data;
+    const { fromBoard, id, rowIndex: sourceRow, colIndex: sourceCol } = data;
 
     if (fromBoard && toBoard) {
       // Swap pieces on board while preserving tile colors
       const newBoard = [...boardPieces];
       const sourcePiece = newBoard[sourceRow][sourceCol].piece;
       const sourceId = newBoard[sourceRow][sourceCol].id;
+      const sourceImage = newBoard[sourceRow][sourceCol].image;
       const targetPiece = newBoard[targetRow!][targetCol!].piece;
       const targetId = newBoard[targetRow!][targetCol!].id;
+      const targetImage = newBoard[targetRow!][targetCol!].image;
 
-      // Update source square (keep original isWhite value)
+      // Update source square
       newBoard[sourceRow][sourceCol] = {
         isWhite: newBoard[sourceRow][sourceCol].isWhite,
         piece: targetPiece,
         id: targetId,
+        image: targetImage,
       };
 
-      // Update target square (keep original isWhite value)
+      // Update target square
       newBoard[targetRow!][targetCol!] = {
         isWhite: newBoard[targetRow!][targetCol!].isWhite,
         piece: sourcePiece,
         id: sourceId,
+        image: sourceImage,
       };
 
       setBoardPieces(newBoard);
@@ -143,31 +173,39 @@ export const Squad = () => {
       newBoard[sourceRow][sourceCol] = {
         isWhite: movedPiece.isWhite,
         piece: null,
+        id: undefined,
+        image: "",
       };
       setBoardPieces(newBoard);
-      setCollection([...collection, { id, piece }]);
+
+      // Update collection quantity
+      setCollection((prevCollection) =>
+        prevCollection.map((p) =>
+          p.id === id ? { ...p, quantity: p.quantity + 1 } : p
+        )
+      );
     } else if (!fromBoard && toBoard) {
       // Move from collection to board
       const newBoard = [...boardPieces];
-      const targetPiece = newBoard[targetRow!][targetCol!];
+
+      // Find the piece entity to get the correct image path
+      const pieceEntity = pieceEntities.find((p: PieceEntity) => p.id === id);
 
       // Update board with collection piece
       newBoard[targetRow!][targetCol!] = {
-        isWhite: (targetRow! + targetCol!) % 2 === 0,
-        piece,
-        id,
+        isWhite: newBoard[targetRow!][targetCol!].isWhite,
+        piece: pieceEntity?.fields.name.toLowerCase() || "",
+        id: id,
+        image: pieceEntity?.fields.image || "",
       };
       setBoardPieces(newBoard);
 
-      // Update collection
-      const newCollection = collection.filter((p) => p.id !== id);
-      if (targetPiece.piece) {
-        newCollection.push({
-          id: targetPiece.id!,
-          piece: targetPiece.piece,
-        });
-      }
-      setCollection(newCollection);
+      // Update collection quantity
+      setCollection((prevCollection) =>
+        prevCollection.map((p) =>
+          p.id === id ? { ...p, quantity: p.quantity - 1 } : p
+        )
+      );
     }
   };
 
@@ -236,7 +274,7 @@ export const Squad = () => {
                 />
                 {square.piece && (
                   <img
-                    src={`/chess/white/${square.piece}.png`}
+                    src={square.image}
                     alt={`${square.piece}`}
                     draggable
                     onDragStart={(e) =>
@@ -277,19 +315,44 @@ export const Squad = () => {
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => handleDrop(e, false)}
       >
-        <img
-          src="/texts/collection.png"
-          alt="Squad"
+        <div
           style={{
-            width: "50%",
-            objectFit: "contain",
-            display: "block",
-            alignSelf: "flex-start",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
           }}
-        />
+        >
+          <img
+            src="/texts/collection.png"
+            alt="Squad"
+            style={{
+              width: "50%",
+              objectFit: "contain",
+              display: "block",
+            }}
+          />
+          <img
+            src="/buttons/save.png"
+            alt="Save"
+            style={{
+              height: "50px",
+              objectFit: "contain",
+              cursor: "pointer",
+              marginTop: "15px",
+              filter: "drop-shadow(0 0 5px rgba(255, 255, 255, 0.5))", // White glow
+              transition: "filter 0.3s ease", // Add transition for smooth effect
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.filter = "drop-shadow(0 0 10px rgba(255, 255, 255, 1))"; // Brighter white glow on hover
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.filter = "drop-shadow(0 0 5px rgba(255, 255, 255, 0.5))"; // Reset glow to white
+            }}
+          />
+        </div>
 
         {/* Collection pieces container */}
-        <PiecesCollection />
         <div
           style={{
             display: "flex",
@@ -307,21 +370,41 @@ export const Squad = () => {
                 borderRadius: "8px",
                 position: "relative",
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
+                opacity: item.quantity === 0 ? 0.5 : 1,
               }}
             >
               <img
-                src={`/chess/white/${item.piece}.png`}
+                src={
+                  pieceEntities.find((p: PieceEntity) => p.id === item.id)
+                    ?.fields.image || ""
+                }
                 alt={item.piece}
-                draggable
+                draggable={item.quantity > 0}
                 onDragStart={(e) =>
+                  item.quantity > 0 &&
                   handleDragStart(e, false, item.piece, item.id)
                 }
                 style={{
                   width: "100%",
                   height: "100%",
                   objectFit: "contain",
+                  cursor: item.quantity > 0 ? "grab" : "not-allowed",
                 }}
               />
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  width: "100%",
+                  textAlign: "center",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  color: "white",
+                  fontSize: "0.8rem",
+                }}
+              >
+                Quantity: {item.quantity}
+              </div>
             </div>
           ))}
         </div>

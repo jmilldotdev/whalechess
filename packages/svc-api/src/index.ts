@@ -16,6 +16,7 @@ import IWorldAbi from "../../contracts/out/IWorld.sol/IWorld.abi.json";
 import Deploy from "../../contracts/deploys/31337/latest.json";
 import { createLLMHandler } from "./llm/handlers";
 import OpenAI from "openai";
+import { v2 as cloudinary } from "cloudinary";
 
 dotenv.config();
 
@@ -45,6 +46,13 @@ const llmHandler = createLLMHandler();
 // Replace Replicate initialization with OpenAI
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+});
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 function encodeComponentValue(name: string, value: string): `0x${string}` {
@@ -118,8 +126,15 @@ app.post("/generate-piece", async (req, res) => {
       size: "1024x1024",
     });
 
-    const imageUrl = imageResponse.data[0]?.url;
-    console.log("Image URL:", imageUrl);
+    const tempImageUrl = imageResponse.data[0]?.url;
+    
+    // Upload to Cloudinary
+    const uploadResponse = await cloudinary.uploader.upload(tempImageUrl!, {
+      folder: "chess-pieces", // Optional: organize images in a folder
+    });
+    
+    const permanentImageUrl = uploadResponse.secure_url;
+    console.log("Permanent Image URL:", permanentImageUrl);
 
     // Properly encode component values
     const encodedComponents = pieceData.components.map(
@@ -131,7 +146,7 @@ app.post("/generate-piece", async (req, res) => {
 
     const args = [
       pieceData.name,
-      imageUrl,
+      permanentImageUrl,
       pieceData.movementAbility,
       pieceData.captureAbility,
       encodedComponents,
@@ -174,7 +189,7 @@ app.post("/generate-piece", async (req, res) => {
       pieceId,
       transactionHash: txHash,
       givePieceTransactionHash: tx2Hash,
-      imageUrl,
+      imageUrl: permanentImageUrl,
     });
   } catch (error) {
     console.error(error);
