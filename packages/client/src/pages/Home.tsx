@@ -85,7 +85,7 @@ export const Home = () => {
                 animation: "fadeIn 1s ease forwards",
               }}
               onClick={() => {
-                console.log("Lobby clicked");
+                navigate("/lobby");
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform =
