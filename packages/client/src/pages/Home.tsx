@@ -1,11 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 import { useAccount } from "wagmi";
 
 export const Home = () => {
   const navigate = useNavigate();
   const { isConnected } = useAccount();
-  console.log("isConnected", isConnected);
 
   const handleProfileClick = () => {
     navigate("/squad");
@@ -13,10 +11,6 @@ export const Home = () => {
 
   return (
     <>
-      <div style={{ position: "absolute", top: 0, left: 0, zIndex: 1000 }}>
-        <DynamicWidget />
-      </div>
-
       <div
         style={{
           position: "fixed",
@@ -117,7 +111,7 @@ export const Home = () => {
                 animation: "fadeIn 1s ease forwards",
               }}
               onClick={() => {
-                console.log("Store clicked");
+                navigate("/store");
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform =

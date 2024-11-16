@@ -4,6 +4,7 @@ import { mainnet } from "viem/chains";
 export const envs = {
   dynamicEnvironmentId: import.meta.env.VITE_DYNAMIC_ENVIRONMENT_ID,
   activeChain: import.meta.env.VITE_ACTIVE_CHAIN || "mainnet",
+  showDevTools: import.meta.env.VITE_SHOW_DEV_TOOLS || false,
 };
 
 export const anvilChain: Chain = {
@@ -30,20 +31,6 @@ const chains: Record<string, Chain> = {
 };
 
 export const evmNetworks = [
-  {
-    blockExplorerUrls: ["https://etherscan.io/"],
-    chainId: mainnet.id,
-    chainName: mainnet.name,
-    iconUrls: ["https://app.dynamic.xyz/assets/networks/eth.svg"],
-    name: "Ethereum",
-    nativeCurrency: {
-      ...mainnet.nativeCurrency,
-      iconUrl: "https://app.dynamic.xyz/assets/networks/eth.svg",
-    },
-    networkId: mainnet.id,
-    rpcUrls: [mainnet.rpcUrls.default.http[0]],
-    vanityName: "ETH Mainnet",
-  },
   {
     blockExplorerUrls: ["http://localhost:8545"],
     chainId: anvilChain.id,
