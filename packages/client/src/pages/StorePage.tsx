@@ -267,7 +267,8 @@ const StorePage = () => {
         >
           <div
             style={{
-              backgroundColor: "#1a1a1a",
+              backgroundImage: "url('/chess/bg.jpg')",
+              backgroundSize: "cover",
               padding: "2rem",
               borderRadius: "10px",
               maxWidth: "500px",
@@ -302,7 +303,7 @@ const StorePage = () => {
                 <h2
                   style={{
                     textAlign: "center",
-                    color: "white",
+                    color: "black",
                     marginBottom: "1rem",
                   }}
                 >
@@ -322,10 +323,10 @@ const StorePage = () => {
                 </div>
                 <div
                   style={{
-                    color: "#ccc",
+                    color: "white",
                     marginBottom: "1rem",
                     padding: "1rem",
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
                     borderRadius: "6px",
                   }}
                 >
@@ -344,10 +345,10 @@ const StorePage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                      color: "#4a90e2",
+                      color: "white",
                       textDecoration: "none",
                       padding: "0.5rem",
-                      backgroundColor: "rgba(74, 144, 226, 0.1)",
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
                       borderRadius: "4px",
                       textAlign: "center",
                     }}
@@ -359,10 +360,10 @@ const StorePage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                      color: "#4a90e2",
+                      color: "white",
                       textDecoration: "none",
                       padding: "0.5rem",
-                      backgroundColor: "rgba(74, 144, 226, 0.1)",
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
                       borderRadius: "4px",
                       textAlign: "center",
                     }}
