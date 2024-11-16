@@ -5,18 +5,12 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { Squad, SquadPiece, PlayerPiece } from "../codegen/index.sol";
 
 contract SquadSystem is System {
-    error SquadNameEmpty();
-    error PieceNotOwned();
-    error PieceNotInSquad();
-    error InvalidPosition();
-    error NotSquadOwner();
-    error SquadNotFound();
-
     function createSquad(string memory name) public returns (bytes32) {
+
         address owner = _msgSender();
         
         // Validate name
-        if (bytes(name).length == 0) revert SquadNameEmpty();
+        require(bytes(name).length > 0, "Squad name cannot be empty");
 
         // Generate squad ID using name and creator's address
         bytes32 squadId = keccak256(abi.encodePacked(name, owner, block.timestamp));
@@ -43,14 +37,14 @@ contract SquadSystem is System {
         
         // Check squad exists and player owns it
         address squadOwner = Squad.getOwnerAddress(squadId);
-        if (squadOwner != player) revert NotSquadOwner();
+        require(squadOwner == player, "Not squad owner");
         
         // Check if player owns the piece
         uint256 ownedQuantity = PlayerPiece.get(pieceId, player);
-        if (ownedQuantity == 0) revert PieceNotOwned();
+        require(ownedQuantity > 0, "Piece not owned");
 
         // Validate position (assuming 8x2 board)
-        if (x >= 8 || y >= 2) revert InvalidPosition();
+        require(x < 8 && y < 2, "Invalid position");
 
         // Create unique position ID
         bytes32 id = keccak256(abi.encodePacked(squadId, x, y));
@@ -74,7 +68,7 @@ contract SquadSystem is System {
         
         // Check squad exists and player owns it
         address squadOwner = Squad.getOwnerAddress(squadId);
-        if (squadOwner != player) revert NotSquadOwner();
+        require(squadOwner == player, "Not squad owner");
 
         // Create position ID
         bytes32 id = keccak256(abi.encodePacked(squadId, x, y));
