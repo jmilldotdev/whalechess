@@ -30,7 +30,7 @@ contract LobbySystem is System {
                 opponentAddress: address(0),
                 opponentSquadId: bytes32(0),
                 createdAt: block.timestamp,
-                active: true,
+                active: false,
                 result: GameResult.NONE,
                 activePlayerAddress: address(0)
             })
@@ -58,16 +58,10 @@ contract LobbySystem is System {
     }
 
     function joinLobby(bytes32 lobbyId, bytes32 squadId) public noReentrantJoin {
-        // Verify squad exists and is owned by sender
-        SquadData memory squad = Squad.get(squadId);
-        require(squad.active, "Squad not found");
-        require(squad.ownerAddress == _msgSender(), "Squad not owned by sender");
-
         // Get lobby data
         LobbyData memory lobby = Lobby.get(lobbyId);
 
         // Verify lobby state
-        require(lobby.active, "Lobby not found");
         require(lobby.opponentAddress == address(0), "Lobby already active");
         require(lobby.ownerAddress != _msgSender(), "Owner cannot join own lobby");
 
@@ -78,9 +72,9 @@ contract LobbySystem is System {
             opponentAddress: _msgSender(),
             opponentSquadId: squadId,
             createdAt: lobby.createdAt,
-            active: lobby.active,
-            result: lobby.result,
-            activePlayerAddress: lobby.ownerAddress
+            active: true,
+            result: GameResult.NONE,
+            activePlayerAddress: _msgSender()
         }));
     }
 }

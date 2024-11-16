@@ -7,6 +7,7 @@ import { encodePacked, keccak256 } from "viem";
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
 import { Entity, getComponentValue } from "@latticexyz/recs";
+import { toast } from "sonner";
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
@@ -31,7 +32,7 @@ export function createSystemCalls(
    *   (https://github.com/latticexyz/mud/blob/main/templates/react/packages/client/src/mud/setupNetwork.ts#L77-L83).
    */
   { worldContract, waitForTransaction }: SetupNetworkResult,
-  { PlayerPiece, Piece }: ClientComponents
+  { PlayerPiece, Piece, Squad }: ClientComponents
 ) {
   const givePieceToPlayer = async (
     ownerAddress: `0x${string}`,
@@ -58,7 +59,33 @@ export function createSystemCalls(
     return tx;
   };
 
+  const joinLobby = async (lobbyId: string, squadId: string) => {
+    try {
+      // Convert lobbyId and squadId to bytes32
+      // const lobbyIdBytes32 = keccak256(
+      //   encodePacked(["string"], [lobbyId])
+      // ) as `0x${string}`;
+      // const squadIdBytes32 = keccak256(
+      //   encodePacked(["string"], [squadId])
+      // ) as `0x${string}`;
+
+      console.log("lll", lobbyId);
+      console.log("ggg", squadId);
+
+      const tx = await worldContract.write.app__joinLobby([
+        lobbyId as `0x${string}`,
+        squadId as `0x${string}`,
+      ]);
+      await waitForTransaction(tx);
+      return tx;
+    } catch (error) {
+      console.error("Failed to join lobby:", error);
+      throw error;
+    }
+  };
+
   return {
-    givePieceToPlayer, // Expose the givePieceToPlayer function
+    givePieceToPlayer,
+    joinLobby,
   };
 }

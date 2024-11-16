@@ -6,7 +6,7 @@ import { Squad, SquadPiece, PlayerPiece } from "../codegen/index.sol";
 import { PieceTypes } from "../libraries/PieceTypes.sol";
 
 contract SquadSystem is System {
-
+    mapping(address => uint256) private _squadNonce;
 
     function createSquad(
         string memory name,
@@ -17,8 +17,11 @@ contract SquadSystem is System {
         // Validate name
         require(bytes(name).length > 0, "Squad name cannot be empty");
 
-        // Generate squad ID using name and creator's address
-        bytes32 squadId = keccak256(abi.encodePacked(name, owner, block.timestamp));
+        // Increment the nonce for the owner
+        _squadNonce[owner]++;
+
+        // Generate squad ID using name, creator's address, and nonce
+        bytes32 squadId = keccak256(abi.encodePacked(name, owner, _squadNonce[owner]));
 
         // Create squad with owner
         Squad.set(

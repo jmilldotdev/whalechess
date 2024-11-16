@@ -2,22 +2,57 @@ import { useNavigate } from "react-router-dom";
 import { useMUD } from "../MUDContext";
 import { useAccount } from "wagmi";
 import { zeroAddress } from "viem";
+import { toast } from "sonner";
+import { useState } from "react";
 
 export const Lobby = () => {
+  const [joiningLobby, setJoiningLobby] = useState<string | null>(null);
   const navigate = useNavigate();
   const { address } = useAccount();
   const {
+    systemCalls: { joinLobby },
     network: { tables, useStore },
   } = useMUD();
 
-  // Fetch lobbies from the store
+  // Fetch lobbies and squads from the store
   const lobbies = useStore((state) =>
     Object.values(state.getRecords(tables.Lobby))
   );
 
-  const handleJoinLobby = (lobbyId: string) => {
-    // Logic to join the lobby
-    navigate(`/lobby/${lobbyId}`);
+  const playerSquads = useStore((state) =>
+    Object.values(state.getRecords(tables.Squad)).filter(
+      (squad) =>
+        squad.value.ownerAddress.toLowerCase() === address?.toLowerCase() &&
+        squad.value.active
+    )
+  );
+
+  const handleJoinLobby = async (lobbyId: string) => {
+    console.log("handleJoinLobby", lobbyId);
+    if (!address) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
+
+    if (playerSquads.length === 0) {
+      toast.error("You need to create a squad first");
+      return;
+    }
+
+    // Use the first active squad for now
+    const squadId = playerSquads[0].fields.id;
+    console.log("squadId", squadId);
+
+    setJoiningLobby(lobbyId);
+    try {
+      await joinLobby(lobbyId, squadId);
+      toast.success("Successfully joined lobby!");
+      navigate(`/lobby/${lobbyId}`);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to join lobby");
+    } finally {
+      setJoiningLobby(null);
+    }
   };
 
   const handleGoToGame = (lobbyId: string) => {
@@ -162,20 +197,29 @@ export const Lobby = () => {
                       border: "1px solid white",
                       color: "white",
                       borderRadius: "5px",
-                      cursor: "pointer",
+                      cursor:
+                        joiningLobby === lobby.fields.id
+                          ? "not-allowed"
+                          : "pointer",
                       transition: "all 0.3s ease",
+                      opacity: joiningLobby === lobby.fields.id ? 0.7 : 1,
                     }}
-                    onClick={() => handleJoinLobby(lobby.id)}
+                    onClick={() => handleJoinLobby(lobby.fields.id)}
+                    disabled={joiningLobby === lobby.fields.id}
                     onMouseEnter={(e) =>
+                      !joiningLobby &&
                       (e.currentTarget.style.backgroundColor =
                         "rgba(0, 255, 0, 0.3)")
                     }
                     onMouseLeave={(e) =>
+                      !joiningLobby &&
                       (e.currentTarget.style.backgroundColor =
                         "rgba(0, 255, 0, 0.2)")
                     }
                   >
-                    Join Lobby
+                    {joiningLobby === lobby.fields.id
+                      ? "Joining..."
+                      : "Join Lobby"}
                   </button>
                 )}
 
