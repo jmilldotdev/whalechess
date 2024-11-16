@@ -12,6 +12,7 @@ export default defineWorld({
       schema: {
         id: "bytes32",
         name: "string",
+        image: "string",
         movementAbility: "string",
         captureAbility: "string",
       },

@@ -13,6 +13,7 @@ import { PieceTypes } from "../../libraries/PieceTypes.sol";
 interface IPieceSystem {
   function app__createPiece(
     string memory name,
+    string memory image,
     string memory movementAbility,
     string memory captureAbility,
     PieceTypes.ComponentData[] memory components

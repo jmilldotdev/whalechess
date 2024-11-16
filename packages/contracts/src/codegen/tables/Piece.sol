@@ -18,6 +18,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 struct PieceData {
   string name;
+  string image;
   string movementAbility;
   string captureAbility;
 }
@@ -27,12 +28,12 @@ library Piece {
   ResourceId constant _tableId = ResourceId.wrap(0x7462617070000000000000000000000050696563650000000000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0000000300000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0000000400000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (string, string, string)
-  Schema constant _valueSchema = Schema.wrap(0x00000003c5c5c500000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (string, string, string, string)
+  Schema constant _valueSchema = Schema.wrap(0x00000004c5c5c5c5000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -48,10 +49,11 @@ library Piece {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](3);
+    fieldNames = new string[](4);
     fieldNames[0] = "name";
-    fieldNames[1] = "movementAbility";
-    fieldNames[2] = "captureAbility";
+    fieldNames[1] = "image";
+    fieldNames[2] = "movementAbility";
+    fieldNames[3] = "captureAbility";
   }
 
   /**
@@ -231,13 +233,175 @@ library Piece {
   }
 
   /**
+   * @notice Get image.
+   */
+  function getImage(bytes32 id) internal view returns (string memory image) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 1);
+    return (string(_blob));
+  }
+
+  /**
+   * @notice Get image.
+   */
+  function _getImage(bytes32 id) internal view returns (string memory image) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 1);
+    return (string(_blob));
+  }
+
+  /**
+   * @notice Set image.
+   */
+  function setImage(bytes32 id, string memory image) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.setDynamicField(_tableId, _keyTuple, 1, bytes((image)));
+  }
+
+  /**
+   * @notice Set image.
+   */
+  function _setImage(bytes32 id, string memory image) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.setDynamicField(_tableId, _keyTuple, 1, bytes((image)));
+  }
+
+  /**
+   * @notice Get the length of image.
+   */
+  function lengthImage(bytes32 id) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 1);
+    unchecked {
+      return _byteLength / 1;
+    }
+  }
+
+  /**
+   * @notice Get the length of image.
+   */
+  function _lengthImage(bytes32 id) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 1);
+    unchecked {
+      return _byteLength / 1;
+    }
+  }
+
+  /**
+   * @notice Get an item of image.
+   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
+   */
+  function getItemImage(bytes32 id, uint256 _index) internal view returns (string memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    unchecked {
+      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 1, (_index + 1) * 1);
+      return (string(_blob));
+    }
+  }
+
+  /**
+   * @notice Get an item of image.
+   * @dev Reverts with Store_IndexOutOfBounds if `_index` is out of bounds for the array.
+   */
+  function _getItemImage(bytes32 id, uint256 _index) internal view returns (string memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    unchecked {
+      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 1, (_index + 1) * 1);
+      return (string(_blob));
+    }
+  }
+
+  /**
+   * @notice Push a slice to image.
+   */
+  function pushImage(bytes32 id, string memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 1, bytes((_slice)));
+  }
+
+  /**
+   * @notice Push a slice to image.
+   */
+  function _pushImage(bytes32 id, string memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.pushToDynamicField(_tableId, _keyTuple, 1, bytes((_slice)));
+  }
+
+  /**
+   * @notice Pop a slice from image.
+   */
+  function popImage(bytes32 id) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 1, 1);
+  }
+
+  /**
+   * @notice Pop a slice from image.
+   */
+  function _popImage(bytes32 id) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.popFromDynamicField(_tableId, _keyTuple, 1, 1);
+  }
+
+  /**
+   * @notice Update a slice of image at `_index`.
+   */
+  function updateImage(bytes32 id, uint256 _index, string memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    unchecked {
+      bytes memory _encoded = bytes((_slice));
+      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 1), uint40(_encoded.length), _encoded);
+    }
+  }
+
+  /**
+   * @notice Update a slice of image at `_index`.
+   */
+  function _updateImage(bytes32 id, uint256 _index, string memory _slice) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    unchecked {
+      bytes memory _encoded = bytes((_slice));
+      StoreCore.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 1), uint40(_encoded.length), _encoded);
+    }
+  }
+
+  /**
    * @notice Get movementAbility.
    */
   function getMovementAbility(bytes32 id) internal view returns (string memory movementAbility) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 1);
+    bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 2);
     return (string(_blob));
   }
 
@@ -248,7 +412,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 1);
+    bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 2);
     return (string(_blob));
   }
 
@@ -259,7 +423,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreSwitch.setDynamicField(_tableId, _keyTuple, 1, bytes((movementAbility)));
+    StoreSwitch.setDynamicField(_tableId, _keyTuple, 2, bytes((movementAbility)));
   }
 
   /**
@@ -269,7 +433,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreCore.setDynamicField(_tableId, _keyTuple, 1, bytes((movementAbility)));
+    StoreCore.setDynamicField(_tableId, _keyTuple, 2, bytes((movementAbility)));
   }
 
   /**
@@ -279,7 +443,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 1);
+    uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 2);
     unchecked {
       return _byteLength / 1;
     }
@@ -292,7 +456,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 1);
+    uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 2);
     unchecked {
       return _byteLength / 1;
     }
@@ -307,7 +471,7 @@ library Piece {
     _keyTuple[0] = id;
 
     unchecked {
-      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 1, (_index + 1) * 1);
+      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 2, _index * 1, (_index + 1) * 1);
       return (string(_blob));
     }
   }
@@ -321,7 +485,7 @@ library Piece {
     _keyTuple[0] = id;
 
     unchecked {
-      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 1, _index * 1, (_index + 1) * 1);
+      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 2, _index * 1, (_index + 1) * 1);
       return (string(_blob));
     }
   }
@@ -333,7 +497,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 1, bytes((_slice)));
+    StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 2, bytes((_slice)));
   }
 
   /**
@@ -343,7 +507,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreCore.pushToDynamicField(_tableId, _keyTuple, 1, bytes((_slice)));
+    StoreCore.pushToDynamicField(_tableId, _keyTuple, 2, bytes((_slice)));
   }
 
   /**
@@ -353,7 +517,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 1, 1);
+    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 2, 1);
   }
 
   /**
@@ -363,7 +527,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreCore.popFromDynamicField(_tableId, _keyTuple, 1, 1);
+    StoreCore.popFromDynamicField(_tableId, _keyTuple, 2, 1);
   }
 
   /**
@@ -375,7 +539,7 @@ library Piece {
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
-      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 1), uint40(_encoded.length), _encoded);
+      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 2, uint40(_index * 1), uint40(_encoded.length), _encoded);
     }
   }
 
@@ -388,7 +552,7 @@ library Piece {
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
-      StoreCore.spliceDynamicData(_tableId, _keyTuple, 1, uint40(_index * 1), uint40(_encoded.length), _encoded);
+      StoreCore.spliceDynamicData(_tableId, _keyTuple, 2, uint40(_index * 1), uint40(_encoded.length), _encoded);
     }
   }
 
@@ -399,7 +563,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 2);
+    bytes memory _blob = StoreSwitch.getDynamicField(_tableId, _keyTuple, 3);
     return (string(_blob));
   }
 
@@ -410,7 +574,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 2);
+    bytes memory _blob = StoreCore.getDynamicField(_tableId, _keyTuple, 3);
     return (string(_blob));
   }
 
@@ -421,7 +585,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreSwitch.setDynamicField(_tableId, _keyTuple, 2, bytes((captureAbility)));
+    StoreSwitch.setDynamicField(_tableId, _keyTuple, 3, bytes((captureAbility)));
   }
 
   /**
@@ -431,7 +595,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreCore.setDynamicField(_tableId, _keyTuple, 2, bytes((captureAbility)));
+    StoreCore.setDynamicField(_tableId, _keyTuple, 3, bytes((captureAbility)));
   }
 
   /**
@@ -441,7 +605,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 2);
+    uint256 _byteLength = StoreSwitch.getDynamicFieldLength(_tableId, _keyTuple, 3);
     unchecked {
       return _byteLength / 1;
     }
@@ -454,7 +618,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 2);
+    uint256 _byteLength = StoreCore.getDynamicFieldLength(_tableId, _keyTuple, 3);
     unchecked {
       return _byteLength / 1;
     }
@@ -469,7 +633,7 @@ library Piece {
     _keyTuple[0] = id;
 
     unchecked {
-      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 2, _index * 1, (_index + 1) * 1);
+      bytes memory _blob = StoreSwitch.getDynamicFieldSlice(_tableId, _keyTuple, 3, _index * 1, (_index + 1) * 1);
       return (string(_blob));
     }
   }
@@ -483,7 +647,7 @@ library Piece {
     _keyTuple[0] = id;
 
     unchecked {
-      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 2, _index * 1, (_index + 1) * 1);
+      bytes memory _blob = StoreCore.getDynamicFieldSlice(_tableId, _keyTuple, 3, _index * 1, (_index + 1) * 1);
       return (string(_blob));
     }
   }
@@ -495,7 +659,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 2, bytes((_slice)));
+    StoreSwitch.pushToDynamicField(_tableId, _keyTuple, 3, bytes((_slice)));
   }
 
   /**
@@ -505,7 +669,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreCore.pushToDynamicField(_tableId, _keyTuple, 2, bytes((_slice)));
+    StoreCore.pushToDynamicField(_tableId, _keyTuple, 3, bytes((_slice)));
   }
 
   /**
@@ -515,7 +679,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 2, 1);
+    StoreSwitch.popFromDynamicField(_tableId, _keyTuple, 3, 1);
   }
 
   /**
@@ -525,7 +689,7 @@ library Piece {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
-    StoreCore.popFromDynamicField(_tableId, _keyTuple, 2, 1);
+    StoreCore.popFromDynamicField(_tableId, _keyTuple, 3, 1);
   }
 
   /**
@@ -537,7 +701,7 @@ library Piece {
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
-      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 2, uint40(_index * 1), uint40(_encoded.length), _encoded);
+      StoreSwitch.spliceDynamicData(_tableId, _keyTuple, 3, uint40(_index * 1), uint40(_encoded.length), _encoded);
     }
   }
 
@@ -550,7 +714,7 @@ library Piece {
 
     unchecked {
       bytes memory _encoded = bytes((_slice));
-      StoreCore.spliceDynamicData(_tableId, _keyTuple, 2, uint40(_index * 1), uint40(_encoded.length), _encoded);
+      StoreCore.spliceDynamicData(_tableId, _keyTuple, 3, uint40(_index * 1), uint40(_encoded.length), _encoded);
     }
   }
 
@@ -587,10 +751,16 @@ library Piece {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 id, string memory name, string memory movementAbility, string memory captureAbility) internal {
+  function set(
+    bytes32 id,
+    string memory name,
+    string memory image,
+    string memory movementAbility,
+    string memory captureAbility
+  ) internal {
     bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(name, movementAbility, captureAbility);
-    bytes memory _dynamicData = encodeDynamic(name, movementAbility, captureAbility);
+    EncodedLengths _encodedLengths = encodeLengths(name, image, movementAbility, captureAbility);
+    bytes memory _dynamicData = encodeDynamic(name, image, movementAbility, captureAbility);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
@@ -601,10 +771,16 @@ library Piece {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 id, string memory name, string memory movementAbility, string memory captureAbility) internal {
+  function _set(
+    bytes32 id,
+    string memory name,
+    string memory image,
+    string memory movementAbility,
+    string memory captureAbility
+  ) internal {
     bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(name, movementAbility, captureAbility);
-    bytes memory _dynamicData = encodeDynamic(name, movementAbility, captureAbility);
+    EncodedLengths _encodedLengths = encodeLengths(name, image, movementAbility, captureAbility);
+    bytes memory _dynamicData = encodeDynamic(name, image, movementAbility, captureAbility);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
@@ -617,8 +793,13 @@ library Piece {
    */
   function set(bytes32 id, PieceData memory _table) internal {
     bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(_table.name, _table.movementAbility, _table.captureAbility);
-    bytes memory _dynamicData = encodeDynamic(_table.name, _table.movementAbility, _table.captureAbility);
+    EncodedLengths _encodedLengths = encodeLengths(
+      _table.name,
+      _table.image,
+      _table.movementAbility,
+      _table.captureAbility
+    );
+    bytes memory _dynamicData = encodeDynamic(_table.name, _table.image, _table.movementAbility, _table.captureAbility);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
@@ -631,8 +812,13 @@ library Piece {
    */
   function _set(bytes32 id, PieceData memory _table) internal {
     bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(_table.name, _table.movementAbility, _table.captureAbility);
-    bytes memory _dynamicData = encodeDynamic(_table.name, _table.movementAbility, _table.captureAbility);
+    EncodedLengths _encodedLengths = encodeLengths(
+      _table.name,
+      _table.image,
+      _table.movementAbility,
+      _table.captureAbility
+    );
+    bytes memory _dynamicData = encodeDynamic(_table.name, _table.image, _table.movementAbility, _table.captureAbility);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
@@ -646,7 +832,11 @@ library Piece {
   function decodeDynamic(
     EncodedLengths _encodedLengths,
     bytes memory _blob
-  ) internal pure returns (string memory name, string memory movementAbility, string memory captureAbility) {
+  )
+    internal
+    pure
+    returns (string memory name, string memory image, string memory movementAbility, string memory captureAbility)
+  {
     uint256 _start;
     uint256 _end;
     unchecked {
@@ -658,11 +848,17 @@ library Piece {
     unchecked {
       _end += _encodedLengths.atIndex(1);
     }
-    movementAbility = (string(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
+    image = (string(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
 
     _start = _end;
     unchecked {
       _end += _encodedLengths.atIndex(2);
+    }
+    movementAbility = (string(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
+
+    _start = _end;
+    unchecked {
+      _end += _encodedLengths.atIndex(3);
     }
     captureAbility = (string(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
   }
@@ -678,7 +874,10 @@ library Piece {
     EncodedLengths _encodedLengths,
     bytes memory _dynamicData
   ) internal pure returns (PieceData memory _table) {
-    (_table.name, _table.movementAbility, _table.captureAbility) = decodeDynamic(_encodedLengths, _dynamicData);
+    (_table.name, _table.image, _table.movementAbility, _table.captureAbility) = decodeDynamic(
+      _encodedLengths,
+      _dynamicData
+    );
   }
 
   /**
@@ -707,6 +906,7 @@ library Piece {
    */
   function encodeLengths(
     string memory name,
+    string memory image,
     string memory movementAbility,
     string memory captureAbility
   ) internal pure returns (EncodedLengths _encodedLengths) {
@@ -714,6 +914,7 @@ library Piece {
     unchecked {
       _encodedLengths = EncodedLengthsLib.pack(
         bytes(name).length,
+        bytes(image).length,
         bytes(movementAbility).length,
         bytes(captureAbility).length
       );
@@ -726,10 +927,11 @@ library Piece {
    */
   function encodeDynamic(
     string memory name,
+    string memory image,
     string memory movementAbility,
     string memory captureAbility
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(bytes((name)), bytes((movementAbility)), bytes((captureAbility)));
+    return abi.encodePacked(bytes((name)), bytes((image)), bytes((movementAbility)), bytes((captureAbility)));
   }
 
   /**
@@ -740,12 +942,13 @@ library Piece {
    */
   function encode(
     string memory name,
+    string memory image,
     string memory movementAbility,
     string memory captureAbility
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData;
-    EncodedLengths _encodedLengths = encodeLengths(name, movementAbility, captureAbility);
-    bytes memory _dynamicData = encodeDynamic(name, movementAbility, captureAbility);
+    EncodedLengths _encodedLengths = encodeLengths(name, image, movementAbility, captureAbility);
+    bytes memory _dynamicData = encodeDynamic(name, image, movementAbility, captureAbility);
 
     return (_staticData, _encodedLengths, _dynamicData);
   }

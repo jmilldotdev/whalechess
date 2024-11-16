@@ -109,6 +109,18 @@ app.post("/generate-piece", async (req, res) => {
     console.log(aiResponse);
     const pieceData = JSON.parse(aiResponse as string);
 
+    // Replace Replicate image generation with OpenAI
+    const imagePrompt = `A creative chess piece named ${pieceData.name}, artistic style, detailed, professional product photography`;
+    const imageResponse = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: imagePrompt,
+      n: 1,
+      size: "1024x1024",
+    });
+
+    const imageUrl = imageResponse.data[0]?.url;
+    console.log("Image URL:", imageUrl);
+
     // Properly encode component values
     const encodedComponents = pieceData.components.map(
       (component: { name: string; value: string }) => ({
@@ -119,6 +131,7 @@ app.post("/generate-piece", async (req, res) => {
 
     const args = [
       pieceData.name,
+      imageUrl,
       pieceData.movementAbility,
       pieceData.captureAbility,
       encodedComponents,
@@ -156,17 +169,6 @@ app.post("/generate-piece", async (req, res) => {
 
     console.log("Tx hash 2:", tx2Hash);
 
-    // Replace Replicate image generation with OpenAI
-    const imagePrompt = `A creative chess piece named ${pieceData.name}, artistic style, detailed, professional product photography`;
-    const imageResponse = await openai.images.generate({
-      model: "dall-e-3",
-      prompt: imagePrompt,
-      n: 1,
-      size: "1024x1024",
-    });
-
-    const imageUrl = imageResponse.data[0]?.url;
-    console.log("Image URL:", imageUrl);
     res.json({
       aiResponse: aiResponse,
       pieceId,

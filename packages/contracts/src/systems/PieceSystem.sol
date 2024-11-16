@@ -8,6 +8,7 @@ contract PieceSystem is System {
 
   function createPiece(
     string memory name, 
+    string memory image,
     string memory movementAbility, 
     string memory captureAbility,
     PieceTypes.ComponentData[] memory components
@@ -21,6 +22,7 @@ contract PieceSystem is System {
     Piece.set(
       id,
       name,
+      image,
       movementAbility,
       captureAbility
     );
