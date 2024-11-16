@@ -100,6 +100,7 @@ app.post("/generate-piece", async (req, res) => {
 
         Generate a unique chess piece and return the piece as a JSON object with the following fields:
         name: string
+        description: string (one line explaining how the piece moves/captures, make it fun and unique e.g. "Moves diagonally up to 2 squares and has a 30% chance to dodge captures")
         movementAbility: string
         captureAbility: string
         components: {name: string, value: string}[]

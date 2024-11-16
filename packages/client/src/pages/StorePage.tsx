@@ -291,10 +291,10 @@ const StorePage = () => {
                     marginBottom: "1rem",
                   }}
                 />
-                <h2 style={{ color: "white", marginBottom: "1rem" }}>
+                <h2 style={{ color: "black", marginBottom: "1rem" }}>
                   Generating your unique piece...
                 </h2>
-                <div style={{ color: "#4a90e2", fontSize: "1.5rem" }}>
+                <div style={{ color: "black", fontSize: "1.5rem" }}>
                   {countdown}s
                 </div>
               </div>
