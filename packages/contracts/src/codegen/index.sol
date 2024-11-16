@@ -6,7 +6,7 @@ pragma solidity >=0.8.24;
 import { CapturableAbility } from "./tables/CapturableAbility.sol";
 import { DrunkenModifier } from "./tables/DrunkenModifier.sol";
 import { Piece, PieceData } from "./tables/Piece.sol";
-import { PlayerPiece } from "./tables/PlayerPiece.sol";
+import { PlayerPiece, PlayerPieceData } from "./tables/PlayerPiece.sol";
 import { Squad, SquadData } from "./tables/Squad.sol";
 import { SquadPiece, SquadPieceData } from "./tables/SquadPiece.sol";
 import { Lobby, LobbyData } from "./tables/Lobby.sol";

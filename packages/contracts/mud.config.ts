@@ -19,11 +19,12 @@ export default defineWorld({
     },
     PlayerPiece: {
       schema: {
+        id: "bytes32",
         pieceId: "bytes32",
         ownerAddress: "address",
         quantity: "uint256",
       },
-      key: ["pieceId", "ownerAddress"],
+      key: ["id"],
     },
     Squad: {
       schema: {

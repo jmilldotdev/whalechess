@@ -16,26 +16,31 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
+struct PlayerPieceData {
+  bytes32 pieceId;
+  address ownerAddress;
+  uint256 quantity;
+}
+
 library PlayerPiece {
   // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "app", name: "PlayerPiece", typeId: RESOURCE_TABLE });`
   ResourceId constant _tableId = ResourceId.wrap(0x74626170700000000000000000000000506c6179657250696563650000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0054030020142000000000000000000000000000000000000000000000000000);
 
-  // Hex-encoded key schema of (bytes32, address)
-  Schema constant _keySchema = Schema.wrap(0x003402005f610000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (uint256)
-  Schema constant _valueSchema = Schema.wrap(0x002001001f000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded key schema of (bytes32)
+  Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32, address, uint256)
+  Schema constant _valueSchema = Schema.wrap(0x005403005f611f00000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
    * @return keyNames An array of strings with the names of key fields.
    */
   function getKeyNames() internal pure returns (string[] memory keyNames) {
-    keyNames = new string[](2);
-    keyNames[0] = "pieceId";
-    keyNames[1] = "ownerAddress";
+    keyNames = new string[](1);
+    keyNames[0] = "id";
   }
 
   /**
@@ -43,8 +48,10 @@ library PlayerPiece {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](1);
-    fieldNames[0] = "quantity";
+    fieldNames = new string[](3);
+    fieldNames[0] = "pieceId";
+    fieldNames[1] = "ownerAddress";
+    fieldNames[2] = "quantity";
   }
 
   /**
@@ -62,104 +69,254 @@ library PlayerPiece {
   }
 
   /**
-   * @notice Get quantity.
+   * @notice Get pieceId.
    */
-  function getQuantity(bytes32 pieceId, address ownerAddress) internal view returns (uint256 quantity) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = pieceId;
-    _keyTuple[1] = bytes32(uint256(uint160(ownerAddress)));
+  function getPieceId(bytes32 id) internal view returns (bytes32 pieceId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
+    return (bytes32(_blob));
   }
 
   /**
-   * @notice Get quantity.
+   * @notice Get pieceId.
    */
-  function _getQuantity(bytes32 pieceId, address ownerAddress) internal view returns (uint256 quantity) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = pieceId;
-    _keyTuple[1] = bytes32(uint256(uint160(ownerAddress)));
+  function _getPieceId(bytes32 id) internal view returns (bytes32 pieceId) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
+   * @notice Set pieceId.
+   */
+  function setPieceId(bytes32 id, bytes32 pieceId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((pieceId)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set pieceId.
+   */
+  function _setPieceId(bytes32 id, bytes32 pieceId) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((pieceId)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get ownerAddress.
+   */
+  function getOwnerAddress(bytes32 id) internal view returns (address ownerAddress) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (address(bytes20(_blob)));
+  }
+
+  /**
+   * @notice Get ownerAddress.
+   */
+  function _getOwnerAddress(bytes32 id) internal view returns (address ownerAddress) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (address(bytes20(_blob)));
+  }
+
+  /**
+   * @notice Set ownerAddress.
+   */
+  function setOwnerAddress(bytes32 id, address ownerAddress) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((ownerAddress)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set ownerAddress.
+   */
+  function _setOwnerAddress(bytes32 id, address ownerAddress) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((ownerAddress)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get quantity.
+   */
+  function getQuantity(bytes32 id) internal view returns (uint256 quantity) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
   /**
    * @notice Get quantity.
    */
-  function get(bytes32 pieceId, address ownerAddress) internal view returns (uint256 quantity) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = pieceId;
-    _keyTuple[1] = bytes32(uint256(uint160(ownerAddress)));
+  function _getQuantity(bytes32 id) internal view returns (uint256 quantity) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (uint256(bytes32(_blob)));
-  }
-
-  /**
-   * @notice Get quantity.
-   */
-  function _get(bytes32 pieceId, address ownerAddress) internal view returns (uint256 quantity) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = pieceId;
-    _keyTuple[1] = bytes32(uint256(uint160(ownerAddress)));
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
   /**
    * @notice Set quantity.
    */
-  function setQuantity(bytes32 pieceId, address ownerAddress, uint256 quantity) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = pieceId;
-    _keyTuple[1] = bytes32(uint256(uint160(ownerAddress)));
+  function setQuantity(bytes32 id, uint256 quantity) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((quantity)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((quantity)), _fieldLayout);
   }
 
   /**
    * @notice Set quantity.
    */
-  function _setQuantity(bytes32 pieceId, address ownerAddress, uint256 quantity) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = pieceId;
-    _keyTuple[1] = bytes32(uint256(uint160(ownerAddress)));
+  function _setQuantity(bytes32 id, uint256 quantity) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((quantity)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((quantity)), _fieldLayout);
   }
 
   /**
-   * @notice Set quantity.
+   * @notice Get the full data.
    */
-  function set(bytes32 pieceId, address ownerAddress, uint256 quantity) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = pieceId;
-    _keyTuple[1] = bytes32(uint256(uint160(ownerAddress)));
+  function get(bytes32 id) internal view returns (PlayerPieceData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((quantity)), _fieldLayout);
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
   }
 
   /**
-   * @notice Set quantity.
+   * @notice Get the full data.
    */
-  function _set(bytes32 pieceId, address ownerAddress, uint256 quantity) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = pieceId;
-    _keyTuple[1] = bytes32(uint256(uint160(ownerAddress)));
+  function _get(bytes32 id) internal view returns (PlayerPieceData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((quantity)), _fieldLayout);
+    (bytes memory _staticData, EncodedLengths _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Set the full data using individual values.
+   */
+  function set(bytes32 id, bytes32 pieceId, address ownerAddress, uint256 quantity) internal {
+    bytes memory _staticData = encodeStatic(pieceId, ownerAddress, quantity);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Set the full data using individual values.
+   */
+  function _set(bytes32 id, bytes32 pieceId, address ownerAddress, uint256 quantity) internal {
+    bytes memory _staticData = encodeStatic(pieceId, ownerAddress, quantity);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Set the full data using the data struct.
+   */
+  function set(bytes32 id, PlayerPieceData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.pieceId, _table.ownerAddress, _table.quantity);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreSwitch.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Set the full data using the data struct.
+   */
+  function _set(bytes32 id, PlayerPieceData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.pieceId, _table.ownerAddress, _table.quantity);
+
+    EncodedLengths _encodedLengths;
+    bytes memory _dynamicData;
+
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
+
+    StoreCore.setRecord(_tableId, _keyTuple, _staticData, _encodedLengths, _dynamicData, _fieldLayout);
+  }
+
+  /**
+   * @notice Decode the tightly packed blob of static data using this table's field layout.
+   */
+  function decodeStatic(
+    bytes memory _blob
+  ) internal pure returns (bytes32 pieceId, address ownerAddress, uint256 quantity) {
+    pieceId = (Bytes.getBytes32(_blob, 0));
+
+    ownerAddress = (address(Bytes.getBytes20(_blob, 32)));
+
+    quantity = (uint256(Bytes.getBytes32(_blob, 52)));
+  }
+
+  /**
+   * @notice Decode the tightly packed blobs using this table's field layout.
+   * @param _staticData Tightly packed static fields.
+   *
+   *
+   */
+  function decode(
+    bytes memory _staticData,
+    EncodedLengths,
+    bytes memory
+  ) internal pure returns (PlayerPieceData memory _table) {
+    (_table.pieceId, _table.ownerAddress, _table.quantity) = decodeStatic(_staticData);
   }
 
   /**
    * @notice Delete all data for given keys.
    */
-  function deleteRecord(bytes32 pieceId, address ownerAddress) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = pieceId;
-    _keyTuple[1] = bytes32(uint256(uint160(ownerAddress)));
+  function deleteRecord(bytes32 id) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
@@ -167,10 +324,9 @@ library PlayerPiece {
   /**
    * @notice Delete all data for given keys.
    */
-  function _deleteRecord(bytes32 pieceId, address ownerAddress) internal {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = pieceId;
-    _keyTuple[1] = bytes32(uint256(uint160(ownerAddress)));
+  function _deleteRecord(bytes32 id) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
 
     StoreCore.deleteRecord(_tableId, _keyTuple, _fieldLayout);
   }
@@ -179,8 +335,8 @@ library PlayerPiece {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint256 quantity) internal pure returns (bytes memory) {
-    return abi.encodePacked(quantity);
+  function encodeStatic(bytes32 pieceId, address ownerAddress, uint256 quantity) internal pure returns (bytes memory) {
+    return abi.encodePacked(pieceId, ownerAddress, quantity);
   }
 
   /**
@@ -189,8 +345,12 @@ library PlayerPiece {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(uint256 quantity) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(quantity);
+  function encode(
+    bytes32 pieceId,
+    address ownerAddress,
+    uint256 quantity
+  ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(pieceId, ownerAddress, quantity);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -201,10 +361,9 @@ library PlayerPiece {
   /**
    * @notice Encode keys as a bytes32 array using this table's field layout.
    */
-  function encodeKeyTuple(bytes32 pieceId, address ownerAddress) internal pure returns (bytes32[] memory) {
-    bytes32[] memory _keyTuple = new bytes32[](2);
-    _keyTuple[0] = pieceId;
-    _keyTuple[1] = bytes32(uint256(uint160(ownerAddress)));
+  function encodeKeyTuple(bytes32 id) internal pure returns (bytes32[] memory) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = id;
 
     return _keyTuple;
   }
