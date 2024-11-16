@@ -6,6 +6,8 @@ import { console } from "forge-std/console.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { PieceTypes } from "../src/libraries/PieceTypes.sol";
+import { SquadSystem } from "../src/systems/SquadSystem.sol";
+
 contract PostDeploy is Script {
   function run(address worldAddress) external {
     StoreSwitch.setStoreAddress(worldAddress);
@@ -40,26 +42,26 @@ contract PostDeploy is Script {
 
     console.log("Creating squad...");
     // Create a standard chess squad
-    bytes32 squadId = world.app__createSquad("Standard Chess");
+    PieceTypes.SquadPieceData[] memory pieces = new PieceTypes.SquadPieceData[](16);
+    pieces[0] = PieceTypes.SquadPieceData(rookId, 0, 0);
+    pieces[1] = PieceTypes.SquadPieceData(keccak256(abi.encodePacked("Knight")), 1, 0);
+    pieces[2] = PieceTypes.SquadPieceData(keccak256(abi.encodePacked("Bishop")), 2, 0);
+    pieces[3] = PieceTypes.SquadPieceData(keccak256(abi.encodePacked("Queen")), 3, 0);
+    pieces[4] = PieceTypes.SquadPieceData(keccak256(abi.encodePacked("King")), 4, 0);
+    pieces[5] = PieceTypes.SquadPieceData(keccak256(abi.encodePacked("Bishop")), 5, 0);
+    pieces[6] = PieceTypes.SquadPieceData(keccak256(abi.encodePacked("Drunken Knight")), 6, 0);
+    pieces[7] = PieceTypes.SquadPieceData(rookId, 7, 0);
+    for (uint256 i = 0; i < 8; i++) {
+      pieces[8 + i] = PieceTypes.SquadPieceData(pawnId, i, 1);
+    }
+
+    bytes32 squadId = world.app__createSquad("Main Squad", pieces);
     console.log("Squad created with ID:", vm.toString(squadId));
 
-    // world.app__addPieceToSquad(squadId, rookId, 0, 0);
-    // world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Knight")), 1, 0);
-    // world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Bishop")), 2, 0);
-    // world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Queen")), 3, 0);
-    // world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("King")), 4, 0);
-    // world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Bishop")), 5, 0);
-    // world.app__addPieceToSquad(squadId, keccak256(abi.encodePacked("Drunken Knight")), 6, 0);
-    // world.app__addPieceToSquad(squadId, rookId, 7, 0);
-
-    // world.app__addPieceToSquad(squadId, pawnId, 0, 1);
-    // world.app__addPieceToSquad(squadId, pawnId, 1, 1);
-    // world.app__addPieceToSquad(squadId, pawnId, 2, 1);
-    // world.app__addPieceToSquad(squadId, pawnId, 3, 1);
-    // world.app__addPieceToSquad(squadId, pawnId, 4, 1);
-    // world.app__addPieceToSquad(squadId, pawnId, 5, 1);
-    // world.app__addPieceToSquad(squadId, pawnId, 6, 1);
-    // world.app__addPieceToSquad(squadId, pawnId, 7, 1);
+    console.log("Creating lobby...");
+    // Create a lobby using the created squad
+    bytes32 lobbyId = world.app__createLobby(squadId);
+    console.log("Lobby created with ID:", vm.toString(lobbyId));
 
     vm.stopBroadcast();
   }

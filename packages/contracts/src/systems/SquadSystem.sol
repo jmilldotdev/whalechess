@@ -3,10 +3,15 @@ pragma solidity >=0.8.17;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { Squad, SquadPiece, PlayerPiece } from "../codegen/index.sol";
+import { PieceTypes } from "../libraries/PieceTypes.sol";
 
 contract SquadSystem is System {
-    function createSquad(string memory name) public returns (bytes32) {
 
+
+    function createSquad(
+        string memory name,
+        PieceTypes.SquadPieceData[] memory pieces
+    ) public returns (bytes32) {
         address owner = _msgSender();
         
         // Validate name
@@ -24,57 +29,31 @@ contract SquadSystem is System {
             name     // name
         );
 
+        // Add pieces to squad
+        for (uint256 i = 0; i < pieces.length; i++) {
+            PieceTypes.SquadPieceData memory piece = pieces[i];
+            
+            // Check if player owns the piece
+            bytes32 playerPieceId = keccak256(abi.encodePacked(piece.pieceId, owner));
+            uint256 ownedQuantity = PlayerPiece.getQuantity(playerPieceId);
+            require(ownedQuantity > 0, "Piece not owned");
+
+            // Validate position (assuming 8x2 board)
+            require(piece.x < 8 && piece.y < 2, "Invalid position");
+
+            // Create unique position ID
+            bytes32 id = keccak256(abi.encodePacked(squadId, piece.x, piece.y));
+
+            // Add piece to squad - order must match schema in mud.config.ts
+            SquadPiece.set(
+                id,             // id
+                squadId,        // squadId
+                piece.pieceId,  // pieceId
+                piece.x,        // startingXPosition
+                piece.y         // startingYPosition
+            );
+        }
+
         return squadId;
-    }
-
-    function addPieceToSquad(
-        bytes32 squadId,
-        bytes32 pieceId,
-        uint256 x,
-        uint256 y
-    ) public {
-        address player = _msgSender();
-        
-        // Check squad exists and player owns it
-        address squadOwner = Squad.getOwnerAddress(squadId);
-        require(squadOwner == player, "Not squad owner");
-        
-        // Check if player owns the piece
-        bytes32 playerPieceId = keccak256(abi.encodePacked(pieceId, player));
-        uint256 ownedQuantity = PlayerPiece.getQuantity(playerPieceId);
-        require(ownedQuantity > 0, "Piece not owned");
-
-        // Validate position (assuming 8x2 board)
-        require(x < 8 && y < 2, "Invalid position");
-
-        // Create unique position ID
-        bytes32 id = keccak256(abi.encodePacked(squadId, x, y));
-
-        // Add piece to squad - order must match schema in mud.config.ts
-        SquadPiece.set(
-            id,             // id
-            squadId,        // squadId
-            pieceId,        // pieceId
-            x,             // startingXPosition
-            y              // startingYPosition
-        );
-    }
-
-    function removePieceFromSquad(
-        bytes32 squadId,
-        uint256 x,
-        uint256 y
-    ) public {
-        address player = _msgSender();
-        
-        // Check squad exists and player owns it
-        address squadOwner = Squad.getOwnerAddress(squadId);
-        require(squadOwner == player, "Not squad owner");
-
-        // Create position ID
-        bytes32 id = keccak256(abi.encodePacked(squadId, x, y));
-
-        // Remove piece from squad
-        SquadPiece.deleteRecord(id);
     }
 }

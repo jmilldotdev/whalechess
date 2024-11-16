@@ -18,7 +18,6 @@ contract LobbySystem is System {
     function createLobby(bytes32 squadId) public returns (bytes32) {
         // Verify squad exists and is owned by sender
         SquadData memory squad = Squad.get(squadId);
-        require(squad.active, "Squad not found");
         require(squad.ownerAddress == _msgSender(), "Squad not owned by sender");
 
         bytes32 lobbyId = keccak256(abi.encodePacked(block.timestamp, _msgSender()));

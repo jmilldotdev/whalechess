@@ -1,26 +1,33 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { useMUD } from "../MUDContext";
+import { useAccount } from "wagmi";
+import { zeroAddress } from "viem";
 
 export const Lobby = () => {
   const navigate = useNavigate();
-  const [lobbies, setLobbies] = useState([
-    { id: 1, name: "Grandmaster's Arena", status: "open", players: ["Player 1"] },
-    { id: 2, name: "Chess Champions", status: "ongoing", players: ["Alice", "Bob"] },
-    { id: 3, name: "Rookie's Challenge", status: "ongoing", players: ["Carol", "Dave"] },
-  ]);
+  const { address } = useAccount();
+  const {
+    network: { tables, useStore },
+  } = useMUD();
 
-  const handleCreateLobby = () => {
-    const newLobby = {
-      id: lobbies.length + 1,
-      name: `Lobby #${lobbies.length + 1}`,
-      status: "open",
-      players: ["Player 1"],
-    };
-    setLobbies([...lobbies, newLobby]);
+  // Fetch lobbies from the store
+  const lobbies = useStore((state) =>
+    Object.values(state.getRecords(tables.Lobby))
+  );
+
+  const handleJoinLobby = (lobbyId: string) => {
+    // Logic to join the lobby
+    navigate(`/lobby/${lobbyId}`);
   };
 
-  const handleJoinOrWatch = (lobbyId: number) => {
-    navigate(`/lobby/${lobbyId}`);
+  const handleGoToGame = (lobbyId: string) => {
+    // Logic to go to the game
+    navigate(`/game/${lobbyId}`);
+  };
+
+  const handleWatchGame = (lobbyId: string) => {
+    // Logic to watch the game
+    navigate(`/watch/${lobbyId}`);
   };
 
   return (
@@ -72,9 +79,9 @@ export const Lobby = () => {
             marginBottom: "40px",
           }}
         >
-          <img 
-            src="/texts/gamelobby.png" 
-            alt="Game Lobby" 
+          <img
+            src="/texts/gamelobby.png"
+            alt="Game Lobby"
             style={{
               maxWidth: "50%",
               height: "auto",
@@ -82,39 +89,11 @@ export const Lobby = () => {
           />
         </div>
 
-        {/* Create Lobby Button - Moved to separate container */}
-        <div
-          style={{
-            position: "absolute",
-            top: "20%",
-            left: "50%",
-            transform: "translateX(-50%)",
-            textAlign: "center",
-          }}
-        >
-          <button
-            onClick={handleCreateLobby}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "rgba(255, 255, 255, 0.2)",
-              border: "2px solid white",
-              color: "white",
-              borderRadius: "5px",
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.3)"}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.2)"}
-          >
-            Create New Lobby
-          </button>
-        </div>
-
         {/* Lobbies Container */}
         <div
           style={{
             position: "absolute",
-            top: "30%",
+            top: "20%",
             left: "50%",
             transform: "translateX(-50%)",
             display: "flex",
@@ -128,56 +107,132 @@ export const Lobby = () => {
             padding: "20px",
           }}
         >
-          {lobbies.map((lobby) => (
-            <div
-              key={lobby.id}
-              style={{
-                width: "100%",
-                maxWidth: "700px",
-                minHeight: "200px",
-                margin: "0 auto",
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-                backdropFilter: "blur(10px)",
-                borderRadius: "10px",
-                padding: "20px",
-                color: "white",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                boxShadow: "0 0 10px rgba(255, 255, 255, 0.1)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "scale(1.05)";
-                e.currentTarget.style.boxShadow = "0 0 20px rgba(255, 255, 255, 0.3)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.boxShadow = "0 0 10px rgba(255, 255, 255, 0.1)";
-              }}
-            >
-              <h3 style={{ marginBottom: "15px" }}>{lobby.name}</h3>
-              <p>Players: {lobby.players.join(" vs ")}</p>
-              <p>Status: {lobby.status}</p>
-              
-              <button
+          {lobbies.map((lobby) => {
+            const isCreator =
+              lobby.value.ownerAddress.toLowerCase() === address?.toLowerCase();
+            const hasOpponent = lobby.value.opponentAddress !== zeroAddress;
+            console.log(
+              "lobby.value.opponentAddress",
+              lobby.value.opponentAddress
+            );
+            console.log("hasOpponent", hasOpponent);
+
+            return (
+              <div
+                key={lobby.id}
                 style={{
-                  marginTop: "20px",
-                  padding: "8px 16px",
-                  backgroundColor: lobby.status === "open" ? "rgba(0, 255, 0, 0.2)" : "rgba(0, 0, 255, 0.2)",
-                  border: "1px solid white",
+                  width: "100%",
+                  maxWidth: "700px",
+                  minHeight: "200px",
+                  margin: "0 auto",
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  backdropFilter: "blur(10px)",
+                  borderRadius: "10px",
+                  padding: "20px",
                   color: "white",
-                  borderRadius: "5px",
                   cursor: "pointer",
                   transition: "all 0.3s ease",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  boxShadow: "0 0 10px rgba(255, 255, 255, 0.1)",
                 }}
-                onClick={() => handleJoinOrWatch(lobby.id)}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = lobby.status === "open" ? "rgba(0, 255, 0, 0.3)" : "rgba(0, 0, 255, 0.3)"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = lobby.status === "open" ? "rgba(0, 255, 0, 0.2)" : "rgba(0, 0, 255, 0.2)"}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "scale(1.05)";
+                  e.currentTarget.style.boxShadow =
+                    "0 0 20px rgba(255, 255, 255, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "scale(1)";
+                  e.currentTarget.style.boxShadow =
+                    "0 0 10px rgba(255, 255, 255, 0.1)";
+                }}
               >
-                {lobby.status === "open" ? "Join the match" : "Watch the match"}
-              </button>
-            </div>
-          ))}
+                <h3 style={{ marginBottom: "15px" }}>Lobby</h3>
+                <p>
+                  Players: {lobby.value.ownerAddress} vs{" "}
+                  {lobby.value.opponentAddress || "Waiting for opponent"}
+                </p>
+                <p>Status: {lobby.value.active ? "Active" : "Inactive"}</p>
+
+                {!hasOpponent && !isCreator && (
+                  <button
+                    style={{
+                      marginTop: "20px",
+                      padding: "8px 16px",
+                      backgroundColor: "rgba(0, 255, 0, 0.2)",
+                      border: "1px solid white",
+                      color: "white",
+                      borderRadius: "5px",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                    }}
+                    onClick={() => handleJoinLobby(lobby.id)}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(0, 255, 0, 0.3)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(0, 255, 0, 0.2)")
+                    }
+                  >
+                    Join Lobby
+                  </button>
+                )}
+
+                {isCreator && (
+                  <button
+                    style={{
+                      marginTop: "20px",
+                      padding: "8px 16px",
+                      backgroundColor: "rgba(0, 0, 255, 0.2)",
+                      border: "1px solid white",
+                      color: "white",
+                      borderRadius: "5px",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                    }}
+                    onClick={() => handleGoToGame(lobby.id)}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(0, 0, 255, 0.3)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(0, 0, 255, 0.2)")
+                    }
+                  >
+                    Go to Game
+                  </button>
+                )}
+
+                {hasOpponent && (
+                  <button
+                    style={{
+                      marginTop: "20px",
+                      padding: "8px 16px",
+                      backgroundColor: "rgba(255, 165, 0, 0.2)",
+                      border: "1px solid white",
+                      color: "white",
+                      borderRadius: "5px",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                    }}
+                    onClick={() => handleWatchGame(lobby.id)}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255, 165, 0, 0.3)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255, 165, 0, 0.2)")
+                    }
+                  >
+                    Watch Game
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -208,4 +263,4 @@ export const Lobby = () => {
   );
 };
 
-export default Lobby; 
+export default Lobby;
