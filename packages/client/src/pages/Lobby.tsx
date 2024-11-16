@@ -57,12 +57,12 @@ export const Lobby = () => {
 
   const handleGoToGame = (lobbyId: string) => {
     // Logic to go to the game
-    navigate(`/game/${lobbyId}`);
+    navigate(`/lobby/${lobbyId}`);
   };
 
   const handleWatchGame = (lobbyId: string) => {
     // Logic to watch the game
-    navigate(`/watch/${lobbyId}`);
+    navigate(`/lobby/${lobbyId}`);
   };
 
   return (
@@ -235,7 +235,7 @@ export const Lobby = () => {
                       cursor: "pointer",
                       transition: "all 0.3s ease",
                     }}
-                    onClick={() => handleGoToGame(lobby.id)}
+                    onClick={() => handleGoToGame(lobby.fields.id)}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.backgroundColor =
                         "rgba(0, 0, 255, 0.3)")
@@ -261,7 +261,7 @@ export const Lobby = () => {
                       cursor: "pointer",
                       transition: "all 0.3s ease",
                     }}
-                    onClick={() => handleWatchGame(lobby.id)}
+                    onClick={() => handleWatchGame(lobby.fields.id)}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.backgroundColor =
                         "rgba(255, 165, 0, 0.3)")
