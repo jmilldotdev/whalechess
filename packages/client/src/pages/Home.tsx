@@ -34,6 +34,20 @@ export const Home = () => {
         <div
           style={{
             position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
+            opacity: 0,
+            animation: "fadeInOverlay 1s ease forwards",
+            animationDelay: "1s",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
             top: "30%",
             left: "50%",
             transform: "translate(-50%, -50%)",
