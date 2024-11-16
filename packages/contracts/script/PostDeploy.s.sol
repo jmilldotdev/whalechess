@@ -21,12 +21,12 @@ contract PostDeploy is Script {
     bytes32 rookId = keccak256(abi.encodePacked("Rook"));
     
     console.log("Creating pieces...");
-    world.app__createPiece("Pawn", "", "n1", "n1e1,n1w1", new PieceTypes.ComponentData[](0));
-    world.app__createPiece("Knight", "", "n1e1,n1w1,e1n1,e1s1,w1n1,w1s1", "", new PieceTypes.ComponentData[](0));
-    world.app__createPiece("Bishop", "", "n*e*,n*w*,s*e*,s*w*", "", new PieceTypes.ComponentData[](0));
-    world.app__createPiece("Rook", "", "n*,s*,e*,w*", "", new PieceTypes.ComponentData[](0));
-    world.app__createPiece("Queen", "", "n*,s*,e*,w*,n*e*,n*w*,s*e*,s*w*", "", new PieceTypes.ComponentData[](0));
-    world.app__createPiece("King", "", "n1,s1,e1,w1", "", new PieceTypes.ComponentData[](0));
+    world.app__createPiece("Pawn", "/chess/metal/pawn.png", "n1", "n1e1,n1w1", new PieceTypes.ComponentData[](0));
+    world.app__createPiece("Knight", "/chess/metal/knight.png", "n1e1,n1w1,e1n1,e1s1,w1n1,w1s1", "", new PieceTypes.ComponentData[](0));
+    world.app__createPiece("Bishop", "/chess/metal/bishop.png", "n*e*,n*w*,s*e*,s*w*", "", new PieceTypes.ComponentData[](0));
+    world.app__createPiece("Rook", "/chess/metal/rook.png", "n*,s*,e*,w*", "", new PieceTypes.ComponentData[](0));
+    world.app__createPiece("Queen", "/chess/metal/queen.png", "n*,s*,e*,w*,n*e*,n*w*,s*e*,s*w*", "", new PieceTypes.ComponentData[](0));
+    world.app__createPiece("King", "/chess/metal/king.png", "n1,s1,e1,w1", "", new PieceTypes.ComponentData[](0));
 
     // Create some custom pieces
     PieceTypes.ComponentData[] memory drunkenKnightComponents = new PieceTypes.ComponentData[](1);
