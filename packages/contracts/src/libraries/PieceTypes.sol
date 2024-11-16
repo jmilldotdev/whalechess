@@ -6,4 +6,10 @@ library PieceTypes {
         string name;
         bytes value;
     }
+
+    struct SquadPieceData {
+        bytes32 pieceId;
+        uint256 x;
+        uint256 y;
+    }
 }
