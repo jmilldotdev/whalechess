@@ -110,7 +110,7 @@ export const Lobby = () => {
           </button>
         </div>
 
-        {/* Lobbies Container - Modified for vertical scrolling */}
+        {/* Lobbies Container */}
         <div
           style={{
             position: "absolute",
@@ -124,6 +124,7 @@ export const Lobby = () => {
             maxWidth: "800px",
             height: "60vh",
             overflowY: "auto",
+            overflowX: "hidden",
             padding: "20px",
           }}
         >
@@ -132,7 +133,9 @@ export const Lobby = () => {
               key={lobby.id}
               style={{
                 width: "100%",
+                maxWidth: "700px",
                 minHeight: "200px",
+                margin: "0 auto",
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
                 backdropFilter: "blur(10px)",
                 borderRadius: "10px",
