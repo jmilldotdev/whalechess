@@ -5,6 +5,7 @@ export const envs = {
   dynamicEnvironmentId: import.meta.env.VITE_DYNAMIC_ENVIRONMENT_ID,
   activeChain: import.meta.env.VITE_ACTIVE_CHAIN || "mainnet",
   showDevTools: import.meta.env.VITE_SHOW_DEV_TOOLS || false,
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || "http://localhost:4000",
 };
 
 export const anvilChain: Chain = {
