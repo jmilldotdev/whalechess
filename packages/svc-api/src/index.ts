@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { OpenAI } from "openai";
 import {
   createPublicClient,
   createWalletClient,
@@ -15,6 +14,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { foundry } from "viem/chains";
 import IWorldAbi from "../../contracts/out/IWorld.sol/IWorld.abi.json";
 import Deploy from "../../contracts/deploys/31337/latest.json";
+import { createLLMHandler } from "./llm/handlers";
 
 dotenv.config();
 
@@ -23,11 +23,6 @@ app.use(cors());
 app.use(express.json());
 
 const WORLD_ADDRESS = Deploy.worldAddress as `0x${string}`;
-
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 // Initialize Viem clients
 const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`);
@@ -44,64 +39,67 @@ const walletClient = createWalletClient({
   transport: http(),
 });
 
+const llmHandler = createLLMHandler();
+
 function encodeComponentValue(name: string, value: string): `0x${string}` {
   // Handle numeric values (like DrunkenModifier)
   if (name === "DrunkenModifier") {
     return encodeAbiParameters(parseAbiParameters("uint256"), [BigInt(value)]);
   }
 
-  // Handle string values (like CapturableAbility)
+  // Handle CapturableAbility by encoding it as an ABI-encoded string
+  if (name === "CapturableAbility") {
+    return encodeAbiParameters(parseAbiParameters("string"), [value]);
+  }
+
+  // Handle other string values
   return ("0x" + Buffer.from(value).toString("hex")) as `0x${string}`;
 }
 
 app.post("/generate-piece", async (req, res) => {
   try {
-    const completion = await openai.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: `You are a helpful assistant that generates chess piece variations.
-          
-          You must provide movementAbility and captureAbility as strings. Notation is as follows: 
+    const completion = await llmHandler.generateCompletion([
+      {
+        role: "system",
+        content: `You are a helpful assistant that generates chess piece variations.
+        
+        You must provide movementAbility and captureAbility as strings. Notation is as follows: 
 
-          n = north, s = south, e = east, w = west
-          # = number of squares maximum to move
-          * = unlimited movement
+        n = north, s = south, e = east, w = west
+        # = number of squares maximum to move
+        * = unlimited movement
 
-          Pawn:
-          movementAbility: "n1", 
-          captureAbility: "n1e1,n1w1",
+        Pawn:
+        movementAbility: "n1", 
+        captureAbility: "n1e1,n1w1",
 
-          Queen:
-          movementAbility: "n*,s*,e*,w*,n*e*,n*w*,s*e*,s*w*"
-          captureAbility: ""
+        Queen:
+        movementAbility: "n*,s*,e*,w*,n*e*,n*w*,s*e*,s*w*"
+        captureAbility: ""
 
-          Additionally, you have access to the following *components*:
-          CapturableAbility
-          DrunkenModifier
+        Additionally, you have access to the following *components*:
+        CapturableAbility
+        DrunkenModifier
 
-          CapturableAbility indicates where a piece that can capture this piece is able to capture it from. Use the same notation as movementAbility.
-          DrunkenModifier indicates a percentage chance that this piece will fail to capture, or fail to be captured. It should be an integer between 0 and 100. JUST AN INTEGER.
+        CapturableAbility indicates where a piece that can capture this piece is able to capture it from. Use the same notation as movementAbility.
+        DrunkenModifier indicates a percentage chance that this piece will fail to capture, or fail to be captured. It should be an integer between 0 and 100. JUST AN INTEGER.
 
-          Generate a unique chess piece and return the piece as a JSON object with the following fields:
-          name: string
-          movementAbility: string
-          captureAbility: string
-          components: {name: string, value: string}[]
-          
-          Return only the JSON object, nothing else.
-          You do not have to use all components, and you can use none at all.`,
-        },
-        {
-          role: "user",
-          content:
-            req.body.prompt || "Generate a unique cool custom chess piece",
-        },
-      ],
-      model: "gpt-3.5-turbo",
-    });
+        Generate a unique chess piece and return the piece as a JSON object with the following fields:
+        name: string
+        movementAbility: string
+        captureAbility: string
+        components: {name: string, value: string}[]
+        
+        Return only the JSON object, nothing else.
+        You do not have to use all components, and you can use none at all.`,
+      },
+      {
+        role: "user",
+        content: req.body.prompt || "Generate a unique cool custom chess piece",
+      },
+    ]);
 
-    const aiResponse = completion.choices[0].message.content;
+    const aiResponse = completion.content;
     console.log(aiResponse);
     const pieceData = JSON.parse(aiResponse as string);
 
