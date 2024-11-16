@@ -11,6 +11,16 @@ const StorePage = () => {
   //   systemCalls: { givePieceToPlayer },
   // } = useMUD();
   const [showCapsule, setShowCapsule] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [generatedPiece, setGeneratedPiece] = useState<{
+    imageUrl: string;
+    name: string;
+    aiResponse: string;
+    createExplorerUrl: string;
+    giveExplorerUrl: string;
+  } | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [countdown, setCountdown] = useState(60);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -19,6 +29,16 @@ const StorePage = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isGenerating && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isGenerating, countdown]);
 
   // const handleGivePawn = async () => {
   //   if (!address) return;
@@ -55,6 +75,10 @@ const StorePage = () => {
       return;
     }
 
+    setIsGenerating(true);
+    setShowModal(true);
+    setCountdown(60);
+
     try {
       const response = await fetch(envs.apiBaseUrl + "/generate-piece", {
         method: "POST",
@@ -81,54 +105,21 @@ const StorePage = () => {
         data.givePieceTransactionHash
       );
 
-      toast.success("New piece created and added to your squad!", {
-        description: (
-          <div>
-            <img
-              src={data.imageUrl}
-              alt="Generated Chess Piece"
-              style={{
-                width: "100%",
-                marginBottom: "10px",
-                borderRadius: "4px",
-              }}
-            />
-            <div style={{ marginBottom: "10px" }}>
-              {JSON.parse(data.aiResponse).name}
-            </div>
-            <a
-              href={createExplorerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: "#4a90e2",
-                textDecoration: "underline",
-                display: "block",
-              }}
-            >
-              View create transaction
-            </a>
-            <a
-              href={giveExplorerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: "#4a90e2",
-                textDecoration: "underline",
-                display: "block",
-              }}
-            >
-              View transfer transaction
-            </a>
-          </div>
-        ),
-        duration: 5000,
+      setGeneratedPiece({
+        imageUrl: data.imageUrl,
+        name: JSON.parse(data.aiResponse).name,
+        aiResponse: data.aiResponse,
+        createExplorerUrl,
+        giveExplorerUrl,
       });
     } catch (error) {
       toast.error("Failed to generate piece", {
         description:
           error instanceof Error ? error.message : "Unknown error occurred",
       });
+      setShowModal(false);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -258,6 +249,132 @@ const StorePage = () => {
           </>
         )}
       </div>
+
+      {showModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => !isGenerating && setShowModal(false)}
+        >
+          <div
+            style={{
+              backgroundColor: "#1a1a1a",
+              padding: "2rem",
+              borderRadius: "10px",
+              maxWidth: "500px",
+              width: "90%",
+              height: "80vh",
+              overflow: "auto",
+              position: "relative",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {isGenerating ? (
+              <div style={{ textAlign: "center" }}>
+                <img
+                  src="/whalechess.png"
+                  alt="Generating"
+                  style={{
+                    width: "200px",
+                    height: "auto",
+                    marginBottom: "1rem",
+                  }}
+                />
+                <h2 style={{ color: "white", marginBottom: "1rem" }}>
+                  Generating your unique piece...
+                </h2>
+                <div style={{ color: "#4a90e2", fontSize: "1.5rem" }}>
+                  {countdown}s
+                </div>
+              </div>
+            ) : (
+              <>
+                <h2
+                  style={{
+                    textAlign: "center",
+                    color: "white",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  {generatedPiece?.name}
+                </h2>
+
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <img
+                    src={generatedPiece?.imageUrl}
+                    alt="Generated Chess Piece"
+                    style={{
+                      width: "50%",
+                      borderRadius: "8px",
+                      marginBottom: "1rem",
+                    }}
+                  />
+                </div>
+                <div
+                  style={{
+                    color: "#ccc",
+                    marginBottom: "1rem",
+                    padding: "1rem",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    borderRadius: "6px",
+                  }}
+                >
+                  {generatedPiece?.aiResponse || "No description available"}
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <a
+                    href={generatedPiece?.createExplorerUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: "#4a90e2",
+                      textDecoration: "none",
+                      padding: "0.5rem",
+                      backgroundColor: "rgba(74, 144, 226, 0.1)",
+                      borderRadius: "4px",
+                      textAlign: "center",
+                    }}
+                  >
+                    View Create Transaction
+                  </a>
+                  <a
+                    href={generatedPiece?.giveExplorerUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: "#4a90e2",
+                      textDecoration: "none",
+                      padding: "0.5rem",
+                      backgroundColor: "rgba(74, 144, 226, 0.1)",
+                      borderRadius: "4px",
+                      textAlign: "center",
+                    }}
+                  >
+                    View Transfer Transaction
+                  </a>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <style>
         {`
