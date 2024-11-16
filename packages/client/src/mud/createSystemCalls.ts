@@ -7,7 +7,6 @@ import { encodePacked, keccak256 } from "viem";
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
 import { Entity, getComponentValue } from "@latticexyz/recs";
-import { toast } from "sonner";
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
