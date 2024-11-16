@@ -23,6 +23,7 @@
     "@latticexyz/utils": "2.2.14",
     "@latticexyz/world": "2.2.14",
     "@tanstack/react-query": "^5.60.5",
+    "cloudinary": "^2.5.1",
     "contracts": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
