@@ -1,0 +1,24 @@
+# WhaleChess
+
+Whale Chess is a fully on-chain chess game with AI-generated custom pieces. Play chess, collect pieces, build your squad, and climb your way to the top!
+
+## What's Inside
+
+WhaleChess is built with the MUD framework. There are 3 included packages:
+
+- `contracts`: The core logic & contracts of the game, including the chess rules, piece logic, and squad management.
+- `client`: A React app frontend using the MUD framework to interface with the contracts.
+- `api-svc`: An Express API service to get the custom piece definition from the LLM and create the piece using the contracts.
+
+## Development
+
+Follow the setup for [MUD](https://mud.dev/quickstart).
+
+Create an env file using each of the example env files to know what values you need.
+
+```
+pnpm i
+pnpm dev
+```
+
+Note: you may need to restart the development server once after the contracts compile for the first time.
