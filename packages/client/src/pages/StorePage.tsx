@@ -84,6 +84,18 @@ const StorePage = () => {
       toast.success("New piece created and added to your squad!", {
         description: (
           <div>
+            <img
+              src={data.imageUrl}
+              alt="Generated Chess Piece"
+              style={{
+                width: "100%",
+                marginBottom: "10px",
+                borderRadius: "4px",
+              }}
+            />
+            <div style={{ marginBottom: "10px" }}>
+              {JSON.parse(data.aiResponse).name}
+            </div>
             <a
               href={createExplorerUrl}
               target="_blank"
@@ -166,7 +178,8 @@ const StorePage = () => {
                 opacity: 0,
                 animation: "fadeInCapsule 1s ease forwards",
                 width: "300px",
-                filter: "drop-shadow(0 0 15px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.8))",
+                filter:
+                  "drop-shadow(0 0 15px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.8))",
               }}
             >
               <img
@@ -211,16 +224,35 @@ const StorePage = () => {
               <button
                 onClick={handleGeneratePiece}
                 style={{
-                  padding: "10px 20px",
-                  fontSize: "16px",
-                  backgroundColor: "#4a90e2",
                   color: "white",
                   border: "none",
-                  borderRadius: "5px",
                   cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "transparent",
+                  padding: 0,
+                  transition: "filter 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget.firstChild as HTMLElement).style.filter =
+                    "drop-shadow(0 0 15px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.8))";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget.firstChild as HTMLElement).style.filter =
+                    "drop-shadow(0 0 10px rgba(255, 255, 255, 0.5))";
                 }}
               >
-                Generate New Piece
+                <img
+                  src="/texts/getnewpiece.png"
+                  alt="Generate New Piece"
+                  style={{
+                    height: "70px",
+                    width: "auto",
+                    filter: "drop-shadow(0 0 10px rgba(255, 255, 255, 0.5))",
+                    transition: "filter 0.3s ease",
+                  }}
+                />
               </button>
             </div>
           </>

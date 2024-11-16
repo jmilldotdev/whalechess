@@ -15,6 +15,7 @@ import { foundry } from "viem/chains";
 import IWorldAbi from "../../contracts/out/IWorld.sol/IWorld.abi.json";
 import Deploy from "../../contracts/deploys/31337/latest.json";
 import { createLLMHandler } from "./llm/handlers";
+import Replicate from "replicate";
 
 dotenv.config();
 
@@ -40,6 +41,10 @@ const walletClient = createWalletClient({
 });
 
 const llmHandler = createLLMHandler();
+
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN,
+});
 
 function encodeComponentValue(name: string, value: string): `0x${string}` {
   // Handle numeric values (like DrunkenModifier)
@@ -150,11 +155,28 @@ app.post("/generate-piece", async (req, res) => {
 
     console.log("Tx hash 2:", tx2Hash);
 
+    // Generate image using Replicate
+    const imagePrompt = `A creative chess piece named ${pieceData.name}, artistic style, detailed, professional product photography`;
+    const output = await replicate.run(
+      "bytedance/sdxl-lightning-4step:5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637",
+      {
+        input: {
+          prompt: imagePrompt,
+          num_outputs: 1,
+        },
+      }
+    );
+
+    // Properly handles both array and single string responses
+    const imageUrl = Array.isArray(output) ? output[0] : output;
+    console.log("Image URL:", imageUrl);
+
     res.json({
-      aiResponse: "aiResponse",
+      aiResponse: aiResponse,
       pieceId,
       transactionHash: txHash,
       givePieceTransactionHash: tx2Hash,
+      imageUrl,
     });
   } catch (error) {
     console.error(error);
