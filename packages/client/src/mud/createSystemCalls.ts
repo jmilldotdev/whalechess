@@ -55,6 +55,7 @@ export function createSystemCalls(
       BigInt(quantity),
     ]);
     await waitForTransaction(tx);
+    return tx;
   };
 
   return {

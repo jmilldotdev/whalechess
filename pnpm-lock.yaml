@@ -95,6 +95,9 @@ importers:
       rxjs:
         specifier: 7.5.5
         version: 7.5.5
+      sonner:
+        specifier: ^1.7.0
+        version: 1.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       viem:
         specifier: 2.21.19
         version: 2.21.19(bufferutil@4.0.8)(typescript@5.4.2)(utf-8-validate@5.0.10)(zod@3.23.8)

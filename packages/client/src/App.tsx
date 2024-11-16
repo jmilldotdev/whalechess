@@ -5,6 +5,7 @@ import StorePage from "./pages/StorePage";
 import { ChessGame } from "./pages/lobby/[id]";
 import { DynamicWidget, useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useAccount } from "wagmi";
+import { Toaster } from 'sonner';
 
 export const App = () => {
   const { setShowAuthFlow } = useDynamicContext();
@@ -68,6 +69,7 @@ export const App = () => {
           </button>
         </div>
       )}
+      <Toaster position="top-right" />
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />

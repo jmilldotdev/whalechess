@@ -1,5 +1,8 @@
+import { getBlockscoutTxUrl } from "../lib/blockscout";
+import { getActiveChain } from "../lib/config";
 import { useMUD } from "../MUDContext";
 import { useAccount } from "wagmi";
+import { toast } from "sonner";
 
 const StorePage = () => {
   const { address } = useAccount();
@@ -10,10 +13,29 @@ const StorePage = () => {
   const handleGivePawn = async () => {
     if (!address) return;
     try {
-      await givePieceToPlayer(address, "Pawn", 1);
-      console.log("Gave pawn to player!");
+      const tx = await givePieceToPlayer(address, "Pawn", 1);
+      const explorerUrl = getBlockscoutTxUrl(
+        getActiveChain().name.toLowerCase(),
+        tx
+      );
+      toast.success("Pawn added to your squad!", {
+        description: (
+          <a
+            href={explorerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#4a90e2", textDecoration: "underline" }}
+          >
+            View transaction
+          </a>
+        ),
+        duration: 5000,
+      });
     } catch (error) {
-      console.error("Error giving pawn:", error);
+      toast.error("Failed to give pawn", {
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
     }
   };
 

@@ -24,6 +24,3 @@ eth_rpc_url = "https://rpc.garnetchain.com"
 
 [profile.redstone]
 eth_rpc_url = "https://rpc.redstonechain.com"
-
-[profile.flow_testnet]
-eth_rpc_url = "${RPC_URL_FLOW_TESTNET}"
