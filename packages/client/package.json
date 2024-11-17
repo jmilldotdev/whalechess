@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "prebuild": "tsx scripts/generateContracts.ts",
+    "contracts": "tsx scripts/generateContracts.ts",
     "build": "vite build",
     "dev": "wait-port localhost:8545 && vite",
     "preview": "vite preview",
