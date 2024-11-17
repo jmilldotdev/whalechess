@@ -1,5 +1,5 @@
 import { Chain } from "viem";
-import { mainnet } from "viem/chains";
+import { mainnet, garnet } from "viem/chains";
 
 export const envs = {
   dynamicEnvironmentId: import.meta.env.VITE_DYNAMIC_ENVIRONMENT_ID,
@@ -28,6 +28,7 @@ export const anvilChain: Chain = {
 
 const chains: Record<string, Chain> = {
   mainnet,
+  garnet,
   anvil: anvilChain,
 };
 
@@ -45,6 +46,22 @@ export const evmNetworks = [
     networkId: anvilChain.id,
     rpcUrls: [anvilChain.rpcUrls.default.http[0]],
     vanityName: "Anvil Local",
+  },
+  {
+    blockExplorerUrls: ["https://explorer.garnetchain.com"],
+    chainId: 17069,
+    chainName: "Garnet Holesky",
+    iconUrls: ["https://app.dynamic.xyz/assets/networks/eth.svg"],
+    name: "Garnet Holesky",
+    nativeCurrency: {
+      name: "ETH",
+      symbol: "ETH",
+      decimals: 18,
+      iconUrl: "https://app.dynamic.xyz/assets/networks/eth.svg",
+    },
+    networkId: 17069,
+    rpcUrls: ["https://rpc.garnetchain.com"],
+    vanityName: "Garnet Holesky (L2)",
   },
 ];
 
