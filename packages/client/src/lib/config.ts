@@ -1,5 +1,5 @@
 import { Chain } from "viem";
-import { mainnet, garnet } from "viem/chains";
+import { mainnet, garnet, baseSepolia, base } from "viem/chains";
 
 export const envs = {
   dynamicEnvironmentId: import.meta.env.VITE_DYNAMIC_ENVIRONMENT_ID,
@@ -29,6 +29,7 @@ export const anvilChain: Chain = {
 const chains: Record<string, Chain> = {
   mainnet,
   garnet,
+  baseSepolia,
   anvil: anvilChain,
 };
 
@@ -62,6 +63,22 @@ export const evmNetworks = [
     networkId: 17069,
     rpcUrls: ["https://rpc.garnetchain.com"],
     vanityName: "Garnet Holesky (L2)",
+  },
+  {
+    blockExplorerUrls: ["https://base-sepolia.blockscout.com"],
+    chainId: 84532,
+    chainName: "Base Sepolia",
+    iconUrls: ["https://app.dynamic.xyz/assets/networks/base.svg"],
+    name: "Base Sepolia",
+    nativeCurrency: {
+      name: "ETH",
+      symbol: "ETH",
+      decimals: 18,
+      iconUrl: "https://app.dynamic.xyz/assets/networks/base.svg",
+    },
+    networkId: 84532,
+    rpcUrls: ["https://sepolia.base.org"],
+    vanityName: "Base Sepolia",
   },
 ];
 
