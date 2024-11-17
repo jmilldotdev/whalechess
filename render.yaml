@@ -6,15 +6,15 @@ services:
     buildCommand: npm run build --prefix packages/client
     routes:
       - type: rewrite
-        source: /
+        source: /*
         destination: /index.html
 
   - type: web
     name: api-svc
     env: node
     buildCommand: npm install --prefix packages/svc-api && npm run build --prefix packages/svc-api
-    startCommand: npm start --prefix packages/svc-api
+    start: npm start --prefix packages/svc-api
     routes:
       - type: rewrite
         source: /api/*
-        destination: http://api-svc:10000/api/*
+        destination: /
