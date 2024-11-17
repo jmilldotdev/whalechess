@@ -30,3 +30,4 @@ Note: you may need to restart the development server once after the contracts co
 - [Flow](https://evm-testnet.flowscan.io/address/0x80F76DD963D293B5B7B80f6897d4356D16cEC962)
 - [Linea](https://sepolia.lineascan.build/address/0x770280127f13a2cf3d7549d0940fdc4c7ff140c6)
 - [Polygon](https://amoy.polygonscan.com/address/0x1c70a7f9c77e3652dafe469eafea0d0904ed584d)
+- [Mantle](https://sepolia.mantlescan.xyz/address/0xdedb0561e43b857e197de2a22feb163ac38a5f7f)
